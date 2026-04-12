@@ -665,12 +665,74 @@ body {
     opacity: 0.4;
   }
 
+/* ========== Course Picker Screen ========== */
+.courses-screen { padding: 0 0 40px; }
+.courses-header { padding: 24px 20px 16px; }
+.courses-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+.courses-header p { font-size: 14px; color: var(--text-secondary); }
+
+.today-card {
+  margin: 0 20px 24px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  border: 2px solid var(--accent-dim);
+  transition: transform 0.1s;
+}
+.today-card:active { transform: scale(0.98); }
+.today-card-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.today-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.today-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+.today-card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+
+.cat-section { margin-bottom: 20px; }
+.cat-title { padding: 0 20px; font-size: 15px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.cat-scroll::-webkit-scrollbar { display: none; }
+
+.course-card {
+  flex: 0 0 200px;
+  scroll-snap-align: start;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.course-card:active { transform: scale(0.97); }
+.course-card-icon { font-size: 28px; margin-bottom: 8px; }
+.course-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+.course-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.course-card-meta { display: flex; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--text-secondary); font-weight: 600; }
+.level-dot { display: inline-flex; gap: 2px; }
+.level-dot span { width: 6px; height: 6px; border-radius: 50%; background: var(--surface2); }
+.level-dot span.on { background: var(--accent); }
+
+.btn-browse-courses {
+  display: block;
+  margin: 16px 20px 0;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--surface2);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-browse-courses:active { opacity: 0.7; }
+
 </style>
 </head>
 <body>
 
+<!-- Screen 0: Course Picker -->
+<div class="screen courses-screen" id="screenCourses"></div>
+
 <!-- Screen 1: Overview -->
-<div class="screen overview active" id="screenOverview"></div>
+<div class="screen overview" id="screenOverview"></div>
 
 <!-- Screen 2: Active Workout -->
 <div class="screen workout-screen" id="screenWorkout"></div>
@@ -696,6 +758,9 @@ body {
 // =============================================
 const PROGRAMS = {"1": {"1": {"title": "부드러운 전신 스트레칭", "description": "하루를 여는 가벼운 스트레칭으로 뭉친 몸을 풀어줘요", "duration_minutes": 15, "exercises": [{"name": "목 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "고개를 천천히 좌우로 기울이고, 앞뒤로 숙여주세요", "rest_seconds": 10}, {"name": "어깨 돌리기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "양 어깨를 크게 앞으로 10회, 뒤로 10회 돌려주세요", "rest_seconds": 10}, {"name": "고양이-소 자세", "duration_seconds": 90, "sets": 1, "reps": 10, "description": "네발 자세에서 등을 둥글게 말았다가 오목하게 젖혀주세요", "rest_seconds": 10}, {"name": "옆구리 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "서서 한 팔을 위로 뻗고 반대쪽으로 천천히 기울여주세요. 좌우 30초씩", "rest_seconds": 10}, {"name": "허벅지 뒤쪽 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "앉아서 한 다리를 펴고 발끝을 향해 천천히 숙여주세요. 좌우 30초씩", "rest_seconds": 10}, {"name": "나비 자세", "duration_seconds": 60, "sets": 1, "reps": null, "description": "앉아서 발바닥을 모으고 무릎을 천천히 위아래로 움직여주세요", "rest_seconds": 10}, {"name": "복식 호흡", "duration_seconds": 120, "sets": 1, "reps": 10, "description": "편하게 누워서 배에 손을 올리고, 코로 깊게 들이마시고 입으로 천천히 내쉬세요", "rest_seconds": 0}]}, "2": {"title": "상체 이완 스트레칭", "description": "아기 안느라 지친 어깨와 팔을 풀어줘요", "duration_minutes": 15, "exercises": [{"name": "손목 돌리기", "duration_seconds": 40, "sets": 1, "reps": null, "description": "양손을 깍지 끼고 손목을 천천히 돌려주세요. 좌우 각 10회", "rest_seconds": 10}, {"name": "가슴 열기 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "양손을 등 뒤에서 깍지 끼고 가슴을 활짝 열어주세요. 30초 유지", "rest_seconds": 10}, {"name": "팔 교차 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "한 팔을 가슴 앞으로 쭉 뻗고 반대 손으로 당겨주세요. 좌우 30초씩", "rest_seconds": 10}, {"name": "어깨 으쓱 & 이완", "duration_seconds": 60, "sets": 1, "reps": 10, "description": "어깨를 귀까지 올렸다가 힘을 빼고 툭 떨어뜨려주세요", "rest_seconds": 10}, {"name": "상체 비틀기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "앉아서 한 손을 반대쪽 무릎에 대고 상체를 천천히 비틀어주세요. 좌우 30초씩", "rest_seconds": 10}, {"name": "아기 자세 (차일드 포즈)", "duration_seconds": 90, "sets": 1, "reps": null, "description": "무릎 꿇고 앞으로 팔을 쭉 뻗어 이마를 바닥에 대세요. 깊게 호흡하면서 90초 유지", "rest_seconds": 10}, {"name": "목 좌우 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "한 손으로 머리를 잡고 반대쪽 어깨를 향해 천천히 당겨주세요. 좌우 30초씩", "rest_seconds": 0}]}, "3": {"title": "하체 스트레칭 & 골반 이완", "description": "골반과 다리 근육을 부드럽게 풀어줘요", "duration_minutes": 15, "exercises": [{"name": "골반 원 그리기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "서서 골반으로 큰 원을 그려주세요. 시계 방향, 반시계 방향 각 10회", "rest_seconds": 10}, {"name": "런지 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "한 발을 앞으로 크게 내딛고 뒷다리 앞쪽을 늘려주세요. 좌우 30초씩", "rest_seconds": 10}, {"name": "허벅지 안쪽 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "다리를 넓게 벌리고 서서 한쪽 무릎을 구부리며 반대쪽 허벅지 안쪽을 늘려주세요", "rest_seconds": 10}, {"name": "종아리 스트레칭", "duration_seconds": 60, "sets": 1, "reps": null, "description": "벽에 손을 짚고 한 발을 뒤로 빼서 종아리를 늘려주세요. 좌우 30초씩", "rest_seconds": 10}, {"name": "누워서 무릎 안기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "누워서 양 무릎을 가슴 쪽으로 안아주세요. 좌우로 살살 흔들어도 좋아요", "rest_seconds": 10}, {"name": "누워서 다리 교차 비틀기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "누워서 한 무릎을 반대쪽으로 넘기고 시선은 반대쪽. 좌우 30초씩", "rest_seconds": 10}, {"name": "시체 자세 (사바사나)", "duration_seconds": 120, "sets": 1, "reps": null, "description": "편하게 누워서 온몸의 힘을 빼고 깊게 호흡하며 쉬어주세요", "rest_seconds": 0}]}, "4": {"title": "호흡 & 코어 준비", "description": "깊은 호흡으로 코어 근육을 깨워줘요", "duration_minutes": 15, "exercises": [{"name": "횡격막 호흡", "duration_seconds": 90, "sets": 1, "reps": 8, "description": "편하게 누워서 4초 들이쉬고, 4초 참고, 6초 내쉬세요", "rest_seconds": 10}, {"name": "골반저근 운동 (케겔)", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "소변을 참는 느낌으로 5초 조이고 5초 이완. 천천히 해주세요", "rest_seconds": 15}, {"name": "누워서 배 수축", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "누워서 무릎 세우고, 숨을 내쉬면서 배꼽을 등 쪽으로 살짝 당겨주세요", "rest_seconds": 10}, {"name": "골반 기울이기", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "누워서 무릎 세우고, 골반을 살짝 위로 기울였다 내려주세요", "rest_seconds": 10}, {"name": "고양이-소 자세", "duration_seconds": 60, "sets": 1, "reps": 8, "description": "네발 자세에서 호흡에 맞춰 등을 둥글게, 오목하게 번갈아 해주세요", "rest_seconds": 10}, {"name": "복식 호흡 마무리", "duration_seconds": 90, "sets": 1, "reps": 5, "description": "편하게 누워서 깊은 호흡으로 마무리. 수고하셨어요!", "rest_seconds": 0}]}, "5": {"title": "전신 가벼운 움직임", "description": "한 주를 마무리하는 부드러운 전신 운동이에요", "duration_minutes": 15, "exercises": [{"name": "제자리 걷기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "팔을 크게 흔들면서 제자리에서 가볍게 걸어주세요", "rest_seconds": 10}, {"name": "팔 벌려 위로 뻗기", "duration_seconds": 60, "sets": 1, "reps": 10, "description": "숨을 들이쉬며 양팔을 옆으로 벌려 위로 쭉 뻗고, 내쉬며 내려주세요", "rest_seconds": 10}, {"name": "허리 돌리기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "양손을 허리에 대고 큰 원을 그리며 허리를 돌려주세요. 좌우 각 10회", "rest_seconds": 10}, {"name": "스쿼트 (얕게)", "duration_seconds": 60, "sets": 2, "reps": 8, "description": "발을 어깨 너비로 벌리고 의자에 앉듯이 살짝만 내려갔다 올라오세요", "rest_seconds": 15}, {"name": "까치발 들기", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "벽을 잡고 까치발로 올라갔다 천천히 내려오세요", "rest_seconds": 10}, {"name": "전신 기지개", "duration_seconds": 60, "sets": 1, "reps": null, "description": "양팔을 위로 뻗고 최대한 기지개를 켜주세요. 이번 주 수고 많았어요!", "rest_seconds": 0}]}}, "2": {"1": {"title": "코어 기초 활성화", "description": "약해진 코어 근육을 천천히 깨워줘요", "duration_minutes": 17, "exercises": [{"name": "복식 호흡 워밍업", "duration_seconds": 60, "sets": 1, "reps": 5, "description": "누워서 배에 손을 대고 깊은 복식 호흡 5회", "rest_seconds": 10}, {"name": "케겔 운동", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "5초 조이고 5초 이완. 3세트 해주세요", "rest_seconds": 15}, {"name": "데드 벅 (변형)", "duration_seconds": 90, "sets": 2, "reps": 8, "description": "누워서 무릎 90도, 한쪽 발을 바닥 쪽으로 천천히 내렸다 올려주세요. 좌우 교대", "rest_seconds": 15}, {"name": "브릿지", "duration_seconds": 90, "sets": 2, "reps": 10, "description": "누워서 무릎 세우고 엉덩이를 천천히 들어올렸다 내려주세요", "rest_seconds": 15}, {"name": "버드독", "duration_seconds": 90, "sets": 2, "reps": 8, "description": "네발 자세에서 오른팔-왼다리를 동시에 뻗고 3초 유지. 좌우 교대", "rest_seconds": 10}, {"name": "아기 자세 마무리", "duration_seconds": 60, "sets": 1, "reps": null, "description": "차일드 포즈로 편하게 쉬면서 마무리해요", "rest_seconds": 0}]}, "2": {"title": "골반저근 집중", "description": "출산 후 회복에 가장 중요한 골반저근 운동이에요", "duration_minutes": 15, "exercises": [{"name": "호흡 연결 케겔", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "내쉬면서 조이고, 들이쉬면서 이완. 호흡과 연결해주세요", "rest_seconds": 15}, {"name": "빠른 케겔", "duration_seconds": 60, "sets": 2, "reps": 15, "description": "빠르게 조였다 풀었다를 반복해주세요. 1초 조이기, 1초 이완", "rest_seconds": 15}, {"name": "브릿지 + 케겔", "duration_seconds": 90, "sets": 2, "reps": 10, "description": "브릿지 올라가면서 케겔 조이기, 내려오면서 이완", "rest_seconds": 15}, {"name": "클램쉘", "duration_seconds": 90, "sets": 2, "reps": 10, "description": "옆으로 누워서 무릎을 조개처럼 열었다 닫아주세요. 좌우", "rest_seconds": 15}, {"name": "시체 자세 이완", "duration_seconds": 90, "sets": 1, "reps": null, "description": "편하게 누워서 깊게 쉬어주세요", "rest_seconds": 0}]}, "3": {"title": "코어 & 등 강화", "description": "아기를 안을 때 필요한 등과 코어 힘을 길러줘요", "duration_minutes": 18, "exercises": [{"name": "고양이-소 자세 워밍업", "duration_seconds": 60, "sets": 1, "reps": 8, "description": "호흡에 맞춰 부드럽게 워밍업", "rest_seconds": 10}, {"name": "버드독", "duration_seconds": 90, "sets": 3, "reps": 8, "description": "팔-다리를 뻗고 5초 유지. 배에 힘 유지하면서", "rest_seconds": 15}, {"name": "플랭크 (무릎 대고)", "duration_seconds": 90, "sets": 3, "reps": null, "description": "무릎을 대고 20초 유지. 엉덩이가 올라가지 않게 주의", "rest_seconds": 15}, {"name": "슈퍼맨 (변형)", "duration_seconds": 60, "sets": 2, "reps": 8, "description": "엎드려서 팔다리를 살짝만 들어올려주세요. 3초 유지", "rest_seconds": 15}, {"name": "사이드 플랭크 (무릎)", "duration_seconds": 60, "sets": 2, "reps": null, "description": "무릎 대고 옆으로 15초 유지. 좌우", "rest_seconds": 15}, {"name": "아기 자세 마무리", "duration_seconds": 60, "sets": 1, "reps": null, "description": "차일드 포즈로 편하게 마무리", "rest_seconds": 0}]}, "4": {"title": "하체 & 골반 안정화", "description": "골반 주변 근육을 안정시키는 운동이에요", "duration_minutes": 17, "exercises": [{"name": "골반 원 그리기 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "서서 골반으로 원을 그려주세요. 좌우 각 10회", "rest_seconds": 10}, {"name": "스쿼트", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "어깨 너비로 서서 의자에 앉듯이 내려갔다 올라오세요", "rest_seconds": 15}, {"name": "런지 (정지)", "duration_seconds": 90, "sets": 2, "reps": 8, "description": "한 발을 앞으로 내딛고 양 무릎을 90도로 구부렸다 올라오세요. 좌우", "rest_seconds": 15}, {"name": "클램쉘", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "옆으로 누워 무릎을 열었다 닫아주세요. 좌우", "rest_seconds": 15}, {"name": "까치발 들기", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "벽을 잡고 천천히 올라갔다 내려오세요", "rest_seconds": 10}, {"name": "전신 스트레칭 마무리", "duration_seconds": 90, "sets": 1, "reps": null, "description": "허벅지, 종아리, 골반 스트레칭으로 마무리", "rest_seconds": 0}]}, "5": {"title": "코어 통합 & 이완", "description": "이번 주 배운 동작을 종합하고 몸을 쉬게 해줘요", "duration_minutes": 16, "exercises": [{"name": "제자리 걷기 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "팔을 크게 흔들며 1분 걷기", "rest_seconds": 10}, {"name": "브릿지 + 케겔", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "올라가면서 조이고, 내려오면서 이완", "rest_seconds": 15}, {"name": "데드 벅", "duration_seconds": 60, "sets": 2, "reps": 8, "description": "누워서 팔다리를 교차로 내렸다 올리기", "rest_seconds": 15}, {"name": "스쿼트", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "천천히 내려갔다 올라오기", "rest_seconds": 15}, {"name": "전신 스트레칭", "duration_seconds": 120, "sets": 1, "reps": null, "description": "목-어깨-허리-다리 순서로 전체 스트레칭", "rest_seconds": 10}, {"name": "시체 자세 명상", "duration_seconds": 120, "sets": 1, "reps": null, "description": "눈 감고 편하게 누워서 이번 주 수고한 나에게 잘했다고 말해주세요", "rest_seconds": 0}]}}, "3": {"1": {"title": "상체 근력 기초", "description": "팔과 어깨 근력을 천천히 키워줘요", "duration_minutes": 18, "exercises": [{"name": "팔 돌리기 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "양팔을 옆으로 뻗고 작은 원에서 큰 원으로 돌리기", "rest_seconds": 10}, {"name": "벽 푸시업", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "벽에 손을 짚고 팔굽혀펴기. 가슴이 벽에 닿을 때까지 내려갔다 밀어올리세요", "rest_seconds": 15}, {"name": "오버헤드 프레스 (물병)", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "물병을 들고 머리 위로 밀어올렸다 내려주세요", "rest_seconds": 15}, {"name": "이두 컬 (물병)", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "물병을 들고 팔꿈치를 고정한 채 팔을 굽혔다 펴주세요", "rest_seconds": 15}, {"name": "플랭크 (무릎)", "duration_seconds": 60, "sets": 2, "reps": null, "description": "무릎 대고 25초 유지", "rest_seconds": 15}, {"name": "가슴 스트레칭 마무리", "duration_seconds": 60, "sets": 1, "reps": null, "description": "벽에 팔을 대고 가슴을 열어주세요. 좌우 30초씩", "rest_seconds": 0}]}, "2": {"title": "하체 근력 기초", "description": "다리와 엉덩이 힘을 키워줘요", "duration_minutes": 18, "exercises": [{"name": "제자리 행진 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "무릎을 높이 올리며 제자리 행진 1분", "rest_seconds": 10}, {"name": "스쿼트", "duration_seconds": 90, "sets": 3, "reps": 12, "description": "천천히 3초 내려가고 1초 올라오기. 무릎이 발끝을 넘지 않게", "rest_seconds": 15}, {"name": "워킹 런지", "duration_seconds": 90, "sets": 2, "reps": 10, "description": "앞으로 걸으며 런지. 공간이 좁으면 제자리 런지도 OK", "rest_seconds": 15}, {"name": "힙 쓰러스트", "duration_seconds": 90, "sets": 3, "reps": 12, "description": "등을 소파에 기대고 엉덩이를 높이 밀어올려주세요", "rest_seconds": 15}, {"name": "사이드 레그 레이즈", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "옆으로 누워 위쪽 다리를 올렸다 내려주세요. 좌우", "rest_seconds": 10}, {"name": "하체 스트레칭 마무리", "duration_seconds": 90, "sets": 1, "reps": null, "description": "허벅지, 종아리, 엉덩이 스트레칭", "rest_seconds": 0}]}, "3": {"title": "코어 & 등 강화", "description": "아기를 안고 수유하는 데 필요한 근력이에요", "duration_minutes": 18, "exercises": [{"name": "고양이-소 자세 워밍업", "duration_seconds": 60, "sets": 1, "reps": 8, "description": "호흡과 함께 부드럽게", "rest_seconds": 10}, {"name": "플랭크 (무릎 or 풀)", "duration_seconds": 90, "sets": 3, "reps": null, "description": "가능하면 풀 플랭크 20초, 힘들면 무릎 대고 30초", "rest_seconds": 15}, {"name": "사이드 플랭크", "duration_seconds": 60, "sets": 2, "reps": null, "description": "무릎 대고 20초 유지. 좌우", "rest_seconds": 15}, {"name": "슈퍼맨", "duration_seconds": 60, "sets": 3, "reps": 10, "description": "엎드려서 팔다리를 살짝 들어올리고 3초 유지", "rest_seconds": 15}, {"name": "브릿지", "duration_seconds": 60, "sets": 3, "reps": 12, "description": "위에서 3초 유지하며 엉덩이 쥐어짜기", "rest_seconds": 15}, {"name": "아기 자세 마무리", "duration_seconds": 60, "sets": 1, "reps": null, "description": "깊은 호흡과 함께 편하게 쉬기", "rest_seconds": 0}]}, "4": {"title": "전신 서킷", "description": "상체-하체-코어를 골고루 움직여요", "duration_minutes": 20, "exercises": [{"name": "제자리 걷기 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "팔 크게 흔들며 1분 걷기", "rest_seconds": 10}, {"name": "스쿼트", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "천천히 내려갔다 올라오기", "rest_seconds": 15}, {"name": "벽 푸시업", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "벽에서 푸시업", "rest_seconds": 15}, {"name": "브릿지", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "엉덩이 들어올리기", "rest_seconds": 15}, {"name": "플랭크", "duration_seconds": 60, "sets": 2, "reps": null, "description": "25초 유지", "rest_seconds": 15}, {"name": "런지", "duration_seconds": 60, "sets": 2, "reps": 8, "description": "좌우 교대 런지", "rest_seconds": 15}, {"name": "전신 스트레칭 마무리", "duration_seconds": 120, "sets": 1, "reps": null, "description": "전신 스트레칭으로 마무리", "rest_seconds": 0}]}, "5": {"title": "유연성 & 회복", "description": "한 주 동안 힘든 근육을 풀어주는 회복 세션", "duration_minutes": 15, "exercises": [{"name": "전신 기지개", "duration_seconds": 60, "sets": 1, "reps": null, "description": "크게 기지개 켜고 온몸을 흔들어주세요", "rest_seconds": 10}, {"name": "어깨 & 목 스트레칭", "duration_seconds": 90, "sets": 1, "reps": null, "description": "목, 어깨, 팔을 천천히 풀어주세요", "rest_seconds": 10}, {"name": "허리 비틀기", "duration_seconds": 60, "sets": 1, "reps": null, "description": "누워서 무릎을 좌우로 넘기며 허리 비틀기. 좌우 30초씩", "rest_seconds": 10}, {"name": "나비 자세", "duration_seconds": 60, "sets": 1, "reps": null, "description": "앉아서 발바닥 모으고 무릎을 살살 흔들기", "rest_seconds": 10}, {"name": "비둘기 자세", "duration_seconds": 90, "sets": 1, "reps": null, "description": "한 다리를 앞으로 접고 엉덩이를 내려주세요. 좌우 45초씩", "rest_seconds": 10}, {"name": "시체 자세 명상", "duration_seconds": 120, "sets": 1, "reps": null, "description": "눈 감고 깊은 호흡. 이번 주 정말 잘했어요!", "rest_seconds": 0}]}}, "4": {"1": {"title": "전신 근력 A", "description": "상체와 하체를 번갈아 하는 전신 운동", "duration_minutes": 20, "exercises": [{"name": "제자리 행진 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "팔을 크게 흔들며 워밍업", "rest_seconds": 10}, {"name": "스쿼트 + 오버헤드", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "스쿼트 올라오면서 물병을 머리 위로 밀기", "rest_seconds": 15}, {"name": "벽 푸시업 (와이드)", "duration_seconds": 60, "sets": 3, "reps": 12, "description": "손 간격 넓게 벌리고 벽 푸시업", "rest_seconds": 15}, {"name": "런지 + 회전", "duration_seconds": 90, "sets": 2, "reps": 8, "description": "런지 자세에서 상체를 앞쪽 무릎 방향으로 비틀기. 좌우", "rest_seconds": 15}, {"name": "플랭크", "duration_seconds": 60, "sets": 2, "reps": null, "description": "30초 유지 (힘들면 무릎)", "rest_seconds": 15}, {"name": "전신 스트레칭 마무리", "duration_seconds": 90, "sets": 1, "reps": null, "description": "운동한 부위 위주로 스트레칭", "rest_seconds": 0}]}, "2": {"title": "코어 & 밸런스", "description": "균형 감각과 코어를 동시에 키워요", "duration_minutes": 18, "exercises": [{"name": "한 발 서기 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "한 발로 30초씩 서기. 벽을 잡아도 OK", "rest_seconds": 10}, {"name": "버드독 (3초 유지)", "duration_seconds": 90, "sets": 3, "reps": 10, "description": "팔-다리를 뻗고 3초 유지. 좌우 교대", "rest_seconds": 15}, {"name": "싱글 레그 브릿지", "duration_seconds": 90, "sets": 2, "reps": 8, "description": "한 다리를 들고 브릿지. 좌우 교대", "rest_seconds": 15}, {"name": "플랭크 탭", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "플랭크 자세에서 어깨를 번갈아 터치", "rest_seconds": 15}, {"name": "스쿼트 (3초 유지)", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "아래에서 3초 유지하고 올라오기", "rest_seconds": 15}, {"name": "명상 호흡 마무리", "duration_seconds": 90, "sets": 1, "reps": null, "description": "편하게 앉아서 깊은 호흡 5회", "rest_seconds": 0}]}, "3": {"title": "전신 근력 B", "description": "다양한 근육을 골고루 자극해요", "duration_minutes": 20, "exercises": [{"name": "점핑잭 (소프트)", "duration_seconds": 60, "sets": 1, "reps": null, "description": "가볍게 팔다리를 벌렸다 모으기. 점프 없이 한 발씩 해도 OK", "rest_seconds": 10}, {"name": "와이드 스쿼트", "duration_seconds": 60, "sets": 3, "reps": 12, "description": "다리를 넓게 벌리고 스쿼트. 안쪽 허벅지에 집중", "rest_seconds": 15}, {"name": "푸시업 (무릎 or 풀)", "duration_seconds": 60, "sets": 3, "reps": 8, "description": "무릎을 대거나, 가능하면 풀 푸시업", "rest_seconds": 15}, {"name": "리버스 런지", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "뒤로 한 발 빼며 런지. 좌우 교대", "rest_seconds": 15}, {"name": "마운틴 클라이머 (천천히)", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "플랭크에서 무릎을 가슴 쪽으로 번갈아 당기기. 천천히!", "rest_seconds": 15}, {"name": "전신 쿨다운", "duration_seconds": 120, "sets": 1, "reps": null, "description": "스트레칭으로 마무리", "rest_seconds": 0}]}, "4": {"title": "상체 + 코어 집중", "description": "팔, 어깨, 코어를 종합적으로 단련해요", "duration_minutes": 18, "exercises": [{"name": "팔 돌리기 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "크고 작게 팔 돌리기", "rest_seconds": 10}, {"name": "벽 푸시업", "duration_seconds": 60, "sets": 3, "reps": 15, "description": "빠르지 않게, 정확한 자세로", "rest_seconds": 15}, {"name": "트라이셉 딥 (의자)", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "의자에 손을 짚고 팔을 굽혔다 펴기", "rest_seconds": 15}, {"name": "플랭크", "duration_seconds": 60, "sets": 3, "reps": null, "description": "30초 유지", "rest_seconds": 15}, {"name": "데드 벅", "duration_seconds": 60, "sets": 3, "reps": 10, "description": "양팔-양다리 교차 내리기", "rest_seconds": 15}, {"name": "어깨 스트레칭 마무리", "duration_seconds": 60, "sets": 1, "reps": null, "description": "어깨, 팔, 가슴 스트레칭", "rest_seconds": 0}]}, "5": {"title": "4주 프로그램 완주 세션", "description": "축하해요! 4주를 완주하는 마지막 운동이에요", "duration_minutes": 18, "exercises": [{"name": "가벼운 전신 워밍업", "duration_seconds": 60, "sets": 1, "reps": null, "description": "제자리 걷기 + 팔 흔들기", "rest_seconds": 10}, {"name": "스쿼트", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "이제 익숙하죠? 자세에 집중", "rest_seconds": 15}, {"name": "푸시업", "duration_seconds": 60, "sets": 2, "reps": 10, "description": "벽이든 무릎이든 풀이든 자기 수준에 맞게", "rest_seconds": 15}, {"name": "브릿지", "duration_seconds": 60, "sets": 2, "reps": 12, "description": "엉덩이 쥐어짜며 올리기", "rest_seconds": 15}, {"name": "플랭크", "duration_seconds": 45, "sets": 2, "reps": null, "description": "30초 유지. 이제 훨씬 수월하죠?", "rest_seconds": 15}, {"name": "전신 스트레칭", "duration_seconds": 120, "sets": 1, "reps": null, "description": "전신을 천천히 풀어주세요", "rest_seconds": 10}, {"name": "명상 & 감사 호흡", "duration_seconds": 120, "sets": 1, "reps": null, "description": "눈 감고 깊게 호흡하며 4주를 완주한 자신을 칭찬해주세요. 정말 대단해요!", "rest_seconds": 0}]}}};
 
+
+const COURSES = [{"id":"core_1","title":"나를 위한 복부 첫 걸음","category":"core","icon":"🌸","level":1,"duration_minutes":15,"description":"복직근 분리에 안전한 부드러운 복부 운동. 호흡과 함께 깊은 코어를 깨워요","exercises":[{"name":"360도 늑간 호흡","duration_seconds":90,"sets":1,"reps":8,"description":"편하게 누워서 코로 들이쉴 때 갈비뼈가 옆으로 펼쳐지는 걸 느끼세요. 4초 들이쉬고, 6초 내쉬기","rest_seconds":10},{"name":"배꼽 살짝 당기기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고, 숨을 내쉬면서 배꼽을 등 쪽으로 부드럽게 당겨주세요. 5초 유지","rest_seconds":10},{"name":"발뒤꿈치 슬라이드","duration_seconds":90,"sets":2,"reps":8,"description":"누워서 무릎 세우고, 한 발을 바닥에 대고 천천히 밀어 펴세요. 배에 힘 유지! 좌우 교대","rest_seconds":10},{"name":"누워서 행진","duration_seconds":90,"sets":2,"reps":10,"description":"누워서 무릎 90도, 한 다리씩 내쉬면서 발을 바닥 쪽으로 내렸다 올리기. 좌우 교대","rest_seconds":10},{"name":"골반 기울이기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고, 골반을 살짝 위로 기울였다가 돌아와요. 허리가 바닥에 닿는 느낌","rest_seconds":10},{"name":"복식 호흡 마무리","duration_seconds":90,"sets":1,"reps":5,"description":"편하게 누워서 배에 손을 올리고 깊은 호흡. 오늘도 잘했어요!","rest_seconds":0}]},{"id":"core_2","title":"조금씩 깨어나는 코어","category":"core","icon":"🌿","level":2,"duration_minutes":17,"description":"배 근육이 서서히 힘을 찾아가요. 안전하게 한 단계 올라가볼까요?","exercises":[{"name":"고양이-소 자세 워밍업","duration_seconds":60,"sets":1,"reps":8,"description":"네발 자세에서 호흡에 맞춰 등을 둥글게, 오목하게. 몸을 깨워줘요","rest_seconds":10},{"name":"데드 벅","duration_seconds":90,"sets":3,"reps":8,"description":"누워서 양팔 천장, 무릎 90도. 내쉬면서 오른팔-왼다리를 동시에 내려요. 좌우 교대","rest_seconds":15},{"name":"버드독","duration_seconds":90,"sets":3,"reps":8,"description":"네발 자세에서 오른팔-왼다리를 뻗고 3초 유지. 배가 처지지 않게! 좌우 교대","rest_seconds":15},{"name":"브릿지","duration_seconds":90,"sets":3,"reps":10,"description":"누워서 무릎 세우고 엉덩이를 천천히 들어올려요. 위에서 3초 유지","rest_seconds":15},{"name":"클램쉘","duration_seconds":60,"sets":2,"reps":12,"description":"옆으로 누워서 무릎을 조개처럼 열었다 닫기. 골반이 움직이지 않게 주의! 좌우","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"차일드 포즈에서 깊게 호흡하며 편하게 쉬어요","rest_seconds":0}]},{"id":"core_3","title":"단단해지는 나의 중심","category":"core","icon":"💪","level":3,"duration_minutes":18,"description":"코어가 충분히 깨어났다면! 한 단계 더 강한 동작으로 중심을 잡아요","exercises":[{"name":"제자리 행진 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 크게 흔들면서 가볍게 1분 걷기. 몸을 데워줘요","rest_seconds":10},{"name":"플랭크","duration_seconds":90,"sets":3,"reps":null,"description":"무릎 대고 30초 또는 풀 플랭크 20초. 엉덩이가 올라가지 않게 주의","rest_seconds":15},{"name":"사이드 플랭크","duration_seconds":60,"sets":2,"reps":null,"description":"무릎 대고 20초 유지. 골반이 떨어지지 않게! 좌우","rest_seconds":15},{"name":"싱글 레그 브릿지","duration_seconds":90,"sets":2,"reps":8,"description":"한 다리를 들고 브릿지. 골반이 기울지 않도록 코어에 집중! 좌우","rest_seconds":15},{"name":"베어 크롤 홀드","duration_seconds":60,"sets":3,"reps":null,"description":"네발 자세에서 무릎을 바닥에서 2cm만 띄우고 20초 유지. 깊은 코어에 불이 켜져요","rest_seconds":15},{"name":"전신 스트레칭 마무리","duration_seconds":90,"sets":1,"reps":null,"description":"고양이-소 자세 + 아기 자세로 편하게 마무리","rest_seconds":0}]},{"id":"back_1","title":"수유맘을 위한 바른 자세","category":"back","icon":"🦢","level":2,"duration_minutes":16,"description":"수유와 안기로 구부정해진 자세를 바로잡아요. 어깨가 활짝 펴져요","exercises":[{"name":"턱 당기기","duration_seconds":60,"sets":2,"reps":10,"description":"서거나 앉아서 턱을 뒤로 당겨 이중턱을 만들어요. 5초 유지. 거북목 교정에 최고!","rest_seconds":10},{"name":"벽 천사","duration_seconds":90,"sets":3,"reps":10,"description":"벽에 등과 팔을 붙이고 천천히 위아래로 팔을 움직여요. 스노우 엔젤처럼!","rest_seconds":15},{"name":"I-Y-T 레이즈","duration_seconds":90,"sets":2,"reps":6,"description":"엎드려서 팔을 I자, Y자, T자 모양으로 들어올려요. 각 자세 3초 유지","rest_seconds":15},{"name":"고양이-소 자세","duration_seconds":60,"sets":1,"reps":10,"description":"네발 자세에서 호흡에 맞춰 등을 둥글게, 오목하게","rest_seconds":10},{"name":"가슴 열기 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"문틀에 팔을 대고 가슴을 앞으로 내밀어 활짝 열어요. 좌우 30초씩","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 앞으로 쭉 뻗고 깊게 호흡하며 마무리","rest_seconds":0}]},{"id":"back_2","title":"허리가 편안해지는 시간","category":"back","icon":"🌈","level":1,"duration_minutes":16,"description":"아기 안기와 수유로 뻣뻣한 허리를 부드럽게 풀어줘요","exercises":[{"name":"고양이-소 자세","duration_seconds":60,"sets":1,"reps":10,"description":"네발 자세에서 호흡에 맞춰 천천히. 허리에 부드러운 움직임을 줘요","rest_seconds":10},{"name":"골반 기울이기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고 골반을 살짝 기울여요. 허리 아래 공간이 바닥에 닿는 느낌","rest_seconds":10},{"name":"브릿지","duration_seconds":90,"sets":3,"reps":10,"description":"엉덩이를 천천히 들어올리고 위에서 3초. 허리가 아닌 엉덩이 힘으로!","rest_seconds":15},{"name":"고관절 스트레칭","duration_seconds":90,"sets":1,"reps":null,"description":"반무릎 자세에서 앞으로 살짝 기울여 앞쪽 고관절을 늘려요. 좌우 40초씩","rest_seconds":10},{"name":"누워서 무릎 안기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 양 무릎을 가슴 쪽으로 안아주세요. 좌우로 살살 흔들어도 좋아요","rest_seconds":10},{"name":"누워서 다리 교차 비틀기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 한 무릎을 반대쪽으로 넘기고 시선은 반대쪽. 좌우 30초씩. 허리가 녹아요~","rest_seconds":0}]},{"id":"thoracic_1","title":"깊게 숨쉬는 흉곽 케어","category":"thoracic","icon":"🌬️","level":1,"duration_minutes":15,"description":"갈비뼈와 흉곽의 움직임을 되찾아요. 숨쉬기가 편해져요","exercises":[{"name":"360도 늑간 호흡","duration_seconds":90,"sets":1,"reps":8,"description":"앉거나 누워서 갈비뼈 양옆에 손을 대고 들이쉴 때 손이 밀려나는 걸 느끼세요","rest_seconds":10},{"name":"옆으로 누워 책 펼치기","duration_seconds":90,"sets":2,"reps":8,"description":"옆으로 누워 양팔을 앞으로 모은 뒤, 위쪽 팔을 천천히 뒤로 펼쳐요. 시선이 손을 따라가요. 좌우","rest_seconds":15},{"name":"실 꿰기 스트레칭","duration_seconds":90,"sets":2,"reps":8,"description":"네발 자세에서 한 팔을 반대쪽 겨드랑이 밑으로 통과시키며 상체를 비틀어요. 좌우","rest_seconds":15},{"name":"앉아서 흉곽 회전","duration_seconds":60,"sets":2,"reps":8,"description":"양반다리로 앉아서 양손을 어깨에 올리고 상체만 좌우로 천천히 회전","rest_seconds":10},{"name":"가슴 열기 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"양손을 등 뒤에서 깍지 끼고 가슴을 활짝 열어주세요. 30초 유지","rest_seconds":10},{"name":"깊은 호흡 마무리","duration_seconds":60,"sets":1,"reps":5,"description":"편하게 누워서 갈비뼈가 360도로 펼쳐지는 호흡 5회. 흉곽이 시원해져요!","rest_seconds":0}]},{"id":"thoracic_2","title":"가슴 활짝, 흉곽 열기","category":"thoracic","icon":"✨","level":2,"duration_minutes":17,"description":"굳어있는 흉추를 열어주는 동작들. 등 위쪽이 시원하게 펴져요","exercises":[{"name":"고양이-소 자세 워밍업","duration_seconds":60,"sets":1,"reps":10,"description":"흉추 부분에 집중! 등 위쪽이 둥글어지고 펴지는 걸 느끼세요","rest_seconds":10},{"name":"반무릎 흉곽 회전","duration_seconds":90,"sets":2,"reps":8,"description":"한 무릎을 세우고 반대쪽 무릎 꿇기. 양손을 머리 뒤에 대고 윗몸을 열린 쪽으로 회전. 좌우","rest_seconds":15},{"name":"네발 자세 흉곽 회전","duration_seconds":90,"sets":2,"reps":8,"description":"네발 자세에서 한 손을 머리 뒤에 대고 팔꿈치를 천장 쪽으로 열어요. 좌우","rest_seconds":15},{"name":"흉추 신전 (수건 이용)","duration_seconds":60,"sets":2,"reps":8,"description":"등 위쪽에 둥글게 만 수건을 대고 누워서 팔을 위로 뻗으며 등을 젖혀요","rest_seconds":15},{"name":"고관절 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"반무릎 자세에서 앞으로 기울여 고관절 앞쪽을 시원하게. 좌우 30초씩","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 쭉 뻗은 차일드 포즈. 등이 편안하게 늘어나요","rest_seconds":0}]},{"id":"pelvic_1","title":"소중한 골반 건강 지킴이","category":"pelvic","icon":"🌺","level":1,"duration_minutes":16,"description":"출산 후 가장 중요한 골반저근 회복. 차근차근 힘을 되찾아요","exercises":[{"name":"호흡 연결 케겔","duration_seconds":90,"sets":3,"reps":10,"description":"내쉬면서 골반저근을 조이고, 들이쉬면서 이완. 호흡과 연결하는 게 핵심이에요","rest_seconds":15},{"name":"빠른 케겔","duration_seconds":60,"sets":2,"reps":15,"description":"빠르게 조였다 풀기를 반복! 1초 조이고 1초 이완. 지구력을 키워요","rest_seconds":15},{"name":"브릿지 + 케겔","duration_seconds":90,"sets":3,"reps":10,"description":"엉덩이 올리면서 케겔 조이기, 내려오면서 이완. 코어와 골반을 동시에!","rest_seconds":15},{"name":"클램쉘","duration_seconds":90,"sets":2,"reps":12,"description":"옆으로 누워 무릎을 조개처럼 열고 닫기. 엉덩이 옆쪽에 불이 켜져요. 좌우","rest_seconds":15},{"name":"사이드 레그 레이즈","duration_seconds":60,"sets":2,"reps":10,"description":"옆으로 누워 위쪽 다리를 천천히 올렸다 내리기. 골반 안정에 집중! 좌우","rest_seconds":10},{"name":"나비 자세 호흡","duration_seconds":60,"sets":1,"reps":null,"description":"앉아서 발바닥 모으고 깊은 호흡. 골반이 편안하게 열려요","rest_seconds":0}]},{"id":"relax_1","title":"온몸이 녹는 릴랙스 타임","category":"relax","icon":"🧘","level":1,"duration_minutes":15,"description":"하루의 피로를 녹여주는 부드러운 스트레칭과 명상이에요","exercises":[{"name":"목 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"고개를 천천히 좌우로 기울이고, 앞뒤로 숙여주세요. 목이 시원해져요","rest_seconds":10},{"name":"어깨 돌리기","duration_seconds":60,"sets":1,"reps":null,"description":"양 어깨를 크게 앞으로 10회, 뒤로 10회 천천히 돌려주세요","rest_seconds":10},{"name":"나비 자세","duration_seconds":90,"sets":1,"reps":null,"description":"앉아서 발바닥을 모으고 무릎을 살살 위아래로. 골반이 편안해져요","rest_seconds":10},{"name":"비둘기 자세","duration_seconds":90,"sets":1,"reps":null,"description":"한 다리를 앞으로 접고 엉덩이를 천천히 내려요. 좌우 45초씩","rest_seconds":10},{"name":"아기 자세","duration_seconds":90,"sets":1,"reps":null,"description":"무릎 꿇고 이마를 바닥에. 팔을 앞으로 쭉 뻗고 깊게 호흡","rest_seconds":10},{"name":"시체 자세 명상","duration_seconds":120,"sets":1,"reps":null,"description":"눈 감고 편하게 누워서 온몸의 힘을 빼세요. 오늘 하루 수고한 나에게 감사해요","rest_seconds":0}]}];
+const COURSE_CATEGORIES = {"core":{"label":"복부 회복","icon":"🌸"},"back":{"label":"허리 & 자세","icon":"🦢"},"thoracic":{"label":"흉곽 케어","icon":"🌬️"},"pelvic":{"label":"골반 건강","icon":"🌺"},"relax":{"label":"릴랙스","icon":"🧘"}};
 
 // =============================================
 // Exercise Image Map (free-exercise-db, Public Domain)
@@ -748,6 +813,23 @@ const IMAGE_MAP = {
   "트라이셉 딥": [_B+"Bench_Dips/0.jpg", _B+"Bench_Dips/1.jpg"],
   "싱글 레그 브릿지": [_B+"Single_Leg_Glute_Bridge/0.jpg", _B+"Single_Leg_Glute_Bridge/1.jpg"],
   "어깨": [_B+"Shoulder_Circles/0.jpg", _B+"Shoulder_Circles/1.jpg"],
+  "배꼽 살짝": [_B+"Pelvic_Tilt_Into_Bridge/0.jpg", _B+"Pelvic_Tilt_Into_Bridge/1.jpg"],
+  "발뒤꿈치": [_B+"Leg_Extensions/0.jpg", _B+"Leg_Extensions/1.jpg"],
+  "누워서 행진": [_B+"Dead_Bug/0.jpg", _B+"Dead_Bug/1.jpg"],
+  "턱 당기기": [_B+"Isometric_Neck_Exercise_-_Sides/0.jpg", _B+"Isometric_Neck_Exercise_-_Sides/1.jpg"],
+  "벽 천사": [_B+"Standing_Dumbbell_Press/0.jpg", _B+"Standing_Dumbbell_Press/1.jpg"],
+  "I-Y-T": [_B+"Superman/0.jpg", _B+"Superman/1.jpg"],
+  "베어 크롤": [_B+"Plank/0.jpg", _B+"Plank/1.jpg"],
+  "실 꿰기": [_B+"Cat_Stretch/0.jpg", _B+"Cat_Stretch/1.jpg"],
+  "옆으로 누워 책": [_B+"Knee_Across_The_Body/0.jpg", _B+"Knee_Across_The_Body/1.jpg"],
+  "흉곽 회전": [_B+"Seated_Barbell_Twist/0.jpg", _B+"Seated_Barbell_Twist/1.jpg"],
+  "흉추 신전": [_B+"Cat_Stretch/0.jpg", _B+"Cat_Stretch/1.jpg"],
+  "고관절": [_B+"Dumbbell_Lunges/0.jpg", _B+"Dumbbell_Lunges/1.jpg"],
+  "케겔": [_B+"Pelvic_Tilt_Into_Bridge/0.jpg", _B+"Pelvic_Tilt_Into_Bridge/1.jpg"],
+  "비둘기": [_B+"Pigeon_Stretch/0.jpg", _B+"Pigeon_Stretch/1.jpg"],
+  "점핑잭": [_B+"Jumping_Jacks/0.jpg", _B+"Jumping_Jacks/1.jpg"],
+  "버드독": [_B+"Dead_Bug/0.jpg", _B+"Dead_Bug/1.jpg"],
+  "플랭크 탭": [_B+"Plank/0.jpg", _B+"Plank/1.jpg"],
 };
 
 function getExImages(name) {
@@ -788,6 +870,8 @@ let startTime = null;
 let program = null;
 let isPreview = false;
 let elapsedInterval = null;
+let isCourseMode = false;
+let dailyProgram = null;
 
 const WEEK_THEMES = {
   1: '기초 회복',
@@ -799,12 +883,11 @@ const WEEK_THEMES = {
 // =============================================
 // Initialize
 // =============================================
-function init() {
+function applyTheme() {
   const tg = window.Telegram?.WebApp;
   if (tg) {
     tg.ready();
     tg.expand();
-    // Apply Telegram dark theme if available
     if (tg.colorScheme === 'light') {
       document.documentElement.style.setProperty('--bg', '#f2f2f7');
       document.documentElement.style.setProperty('--surface', '#ffffff');
@@ -817,7 +900,9 @@ function init() {
       document.documentElement.style.setProperty('--success-dim', 'rgba(52,199,89,0.12)');
     }
   }
+}
 
+function loadDailyProgram() {
   const { week, day } = getCurrentWeekDay();
   const params = new URLSearchParams(window.location.search);
   let paramWeek = parseInt(params.get('week')) || week;
@@ -834,15 +919,92 @@ function init() {
   const wk = String(paramWeek);
   const dy = String(paramDay);
   if (programs && programs[wk] && programs[wk][dy]) {
-    program = programs[wk][dy];
-    program.week = paramWeek;
-    program.day = paramDay;
+    dailyProgram = { ...programs[wk][dy], week: paramWeek, day: paramDay };
   } else {
-    program = getFallbackProgram(paramWeek, paramDay);
+    dailyProgram = getFallbackProgram(paramWeek, paramDay);
+  }
+  return dailyProgram;
+}
+
+function init() {
+  applyTheme();
+  loadDailyProgram();
+  renderCourses();
+}
+
+// =============================================
+// Screen: Course Picker
+// =============================================
+function renderCourses() {
+  showScreen('screenCourses');
+  const el = document.getElementById('screenCourses');
+  const dp = dailyProgram;
+  const weekTheme = WEEK_THEMES[dp.week] || '';
+
+  let html = `
+    <div class="courses-header">
+      <h1>오늘의 운동</h1>
+      <p>원하는 코스를 골라보세요</p>
+    </div>
+
+    <div class="today-card" onclick="selectDailyProgram()">
+      <div class="today-card-label">${isPreview ? '🔮 미리보기' : '⭐ 오늘의 추천'} · ${dp.week}주차 ${weekTheme}</div>
+      <h2>${dp.title}</h2>
+      <p>${dp.description}</p>
+      <div class="today-card-meta">
+        <span>⏱ ${dp.duration_minutes}분</span>
+        <span>🔥 ${dp.exercises.length}개 동작</span>
+      </div>
+    </div>
+  `;
+
+  // Group courses by category
+  const catOrder = ['core', 'back', 'thoracic', 'pelvic', 'relax'];
+  for (const catKey of catOrder) {
+    const cat = COURSE_CATEGORIES[catKey];
+    if (!cat) continue;
+    const catCourses = COURSES.filter(c => c.category === catKey);
+    if (catCourses.length === 0) continue;
+
+    html += `<div class="cat-section">
+      <div class="cat-title">${cat.icon} ${cat.label}</div>
+      <div class="cat-scroll">`;
+
+    for (const course of catCourses) {
+      const levelDots = Array.from({length: 3}, (_, i) =>
+        `<span class="${i < course.level ? 'on' : ''}"></span>`
+      ).join('');
+
+      html += `
+        <div class="course-card" onclick="selectCourse('${course.id}')">
+          <div class="course-card-icon">${course.icon}</div>
+          <h3>${course.title}</h3>
+          <p>${course.description}</p>
+          <div class="course-card-meta">
+            <span>⏱ ${course.duration_minutes}분</span>
+            <span class="level-dot">${levelDots}</span>
+          </div>
+        </div>`;
+    }
+
+    html += `</div></div>`;
   }
 
-  if (!program) program = getFallbackProgram(paramWeek, paramDay);
+  el.innerHTML = html;
+}
 
+function selectDailyProgram() {
+  isCourseMode = false;
+  program = { ...dailyProgram };
+  renderOverview();
+}
+
+function selectCourse(courseId) {
+  const course = COURSES.find(c => c.id === courseId);
+  if (!course) return;
+  isCourseMode = true;
+  program = { ...course, week: 0, day: 0 };
+  isPreview = false;
   renderOverview();
 }
 
@@ -872,12 +1034,16 @@ function renderOverview() {
   const total = program.exercises.length;
   const weekTheme = WEEK_THEMES[program.week] || '';
 
+  const metaLabel = isCourseMode
+    ? `<span class="week-pill">${program.icon || '📋'} 코스</span>`
+    : `<span class="week-pill">${program.week}주차 · ${weekTheme}</span>${isPreview ? '<span class="preview-pill">미리보기</span>' : ''}`;
+
   let html = `
     <div class="overview">
       <div class="overview-header">
-        <div class="overview-meta">
-          <span class="week-pill">${program.week}주차 · ${weekTheme}</span>
-          ${isPreview ? '<span class="preview-pill">미리보기</span>' : ''}
+        <div class="overview-meta" style="justify-content:space-between;">
+          <div style="display:flex;gap:8px;align-items:center;">${metaLabel}</div>
+          <button class="btn-back" onclick="renderCourses()" style="width:32px;height:32px;font-size:16px;">‹</button>
         </div>
         <h1 class="overview-title">${program.title}</h1>
         <p class="overview-desc">${program.description}</p>
@@ -889,7 +1055,7 @@ function renderOverview() {
       </div>
 
       <div class="exercise-list">
-        <div class="exercise-list-title">오늘의 운동</div>
+        <div class="exercise-list-title">운동 목록</div>
   `;
 
   program.exercises.forEach((ex, i) => {
@@ -1061,11 +1227,15 @@ function renderOverviewWithProgress() {
   const total = program.exercises.length;
   const weekTheme = WEEK_THEMES[program.week] || '';
 
+  const metaLabel = isCourseMode
+    ? `<span class="week-pill">${program.icon || '📋'} 코스</span>`
+    : `<span class="week-pill">${program.week}주차 · ${weekTheme}</span>`;
+
   let html = `
     <div class="overview">
       <div class="overview-header">
         <div class="overview-meta">
-          <span class="week-pill">${program.week}주차 · ${weekTheme}</span>
+          ${metaLabel}
         </div>
         <h1 class="overview-title">${program.title}</h1>
         <p class="overview-desc">${program.description}</p>
@@ -1077,7 +1247,7 @@ function renderOverviewWithProgress() {
       </div>
 
       <div class="exercise-list">
-        <div class="exercise-list-title">오늘의 운동</div>
+        <div class="exercise-list-title">운동 목록</div>
   `;
 
   program.exercises.forEach((ex, i) => {
@@ -1303,6 +1473,10 @@ function sendResult() {
     total_exercises: program.exercises.length,
     completed_count: completedExercises.length,
   };
+  if (isCourseMode && program.id) {
+    result.course_id = program.id;
+    result.course_title = program.title;
+  }
 
   const tg = window.Telegram?.WebApp;
   if (tg) {
