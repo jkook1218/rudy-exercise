@@ -375,8 +375,8 @@ function init() {
   }
 
   if (!program) {
-    showRestDay();
-    return;
+    // Should never happen — fallback always returns a program
+    program = getFallbackProgram(paramWeek, paramDay);
   }
 
   startTime = Date.now();
@@ -415,7 +415,7 @@ function renderApp() {
     <div class="header">
       <h1>${program.title}</h1>
       <div class="subtitle">${program.description}</div>
-      <div class="week-badge">${program.week}주차 · ${weekNames[program.week] || ''}</div>
+      <div class="week-badge">${isPreview ? '미리보기 · ' : ''}${program.week}주차 · ${weekNames[program.week] || ''}</div>
     </div>
 
     <div class="progress-container">
