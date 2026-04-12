@@ -364,9 +364,12 @@ function init() {
   }
 
   // Load program from embedded data
+  // JSON keys are strings ("1", "2"), so convert numbers to strings for lookup
   const programs = getPrograms();
-  if (programs && programs[paramWeek] && programs[paramWeek][paramDay]) {
-    program = programs[paramWeek][paramDay];
+  const wk = String(paramWeek);
+  const dy = String(paramDay);
+  if (programs && programs[wk] && programs[wk][dy]) {
+    program = programs[wk][dy];
     program.week = paramWeek;
     program.day = paramDay;
   } else {
