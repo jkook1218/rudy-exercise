@@ -350,16 +350,18 @@ function init() {
 
   const { week, day } = getCurrentWeekDay();
 
-  // Weekend check
-  if (day > 5) {
-    showRestDay();
-    return;
-  }
-
   // Try to get program from URL params or embedded data
   const params = new URLSearchParams(window.location.search);
-  const paramWeek = parseInt(params.get('week')) || week;
-  const paramDay = parseInt(params.get('day')) || day;
+  let paramWeek = parseInt(params.get('week')) || week;
+  let paramDay = parseInt(params.get('day')) || day;
+
+  // Weekend: show next Monday's program as preview
+  let isPreview = false;
+  if (paramDay > 5 && !params.get('day')) {
+    paramDay = 1;
+    paramWeek = (week % 4) + 1;
+    isPreview = true;
+  }
 
   // Load program from embedded data
   const programs = getPrograms();
