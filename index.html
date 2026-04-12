@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>오늘의 운동</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #ffffff);
+    --text: var(--tg-theme-text-color, #1a1a2e);
+    --hint: var(--tg-theme-hint-color, #8e8e93);
+    --link: var(--tg-theme-link-color, #6c5ce7);
+    --btn: var(--tg-theme-button-color, #6c5ce7);
+    --btn-text: var(--tg-theme-button-text-color, #ffffff);
+    --secondary-bg: var(--tg-theme-secondary-bg-color, #f5f3ff);
+    --card-bg: #f8f7ff;
+    --success: #00b894;
+    --active: #6c5ce7;
+    --rest: #fdcb6e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .header {
+    padding: 20px 20px 16px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    color: var(--hint);
+  }
+  .header .week-badge {
+    display: inline-block;
+    background: var(--active);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-top: 8px;
+  }
+
+  /* Progress bar */
+  .progress-container {
+    padding: 0 20px 16px;
+  }
+  .progress-bar {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, var(--active), var(--success));
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    font-size: 12px;
+    color: var(--hint);
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  /* Exercise list */
+  .exercise-list {
+    padding: 0 16px;
+  }
+  .exercise-card {
+    background: var(--secondary-bg);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+  .exercise-card.active {
+    border-color: var(--active);
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(108, 92, 231, 0.15);
+  }
+  .exercise-card.done {
+    opacity: 0.6;
+    background: var(--secondary-bg);
+  }
+  .exercise-card.done .card-title::after {
+    content: ' ✓';
+    color: var(--success);
+    font-weight: bold;
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .card-number {
+    background: var(--active);
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .exercise-card.done .card-number {
+    background: var(--success);
+  }
+  .card-meta {
+    font-size: 12px;
+    color: var(--hint);
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: var(--hint);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .card-info {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--hint);
+  }
+
+  /* Timer */
+  .timer-section {
+    text-align: center;
+    margin-top: 12px;
+  }
+  .timer-display {
+    font-size: 48px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--active);
+    margin: 8px 0;
+  }
+  .timer-label {
+    font-size: 13px;
+    color: var(--hint);
+    margin-bottom: 12px;
+  }
+  .timer-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .timer-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .timer-btn:active { transform: scale(0.95); }
+  .btn-start {
+    background: var(--active);
+    color: #fff;
+  }
+  .btn-pause {
+    background: var(--rest);
+    color: #333;
+  }
+  .btn-skip {
+    background: var(--secondary-bg);
+    color: var(--hint);
+  }
+  .btn-next {
+    background: var(--success);
+    color: #fff;
+  }
+
+  /* Rest overlay */
+  .rest-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .rest-overlay.show { display: flex; }
+  .rest-text {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .rest-timer {
+    color: var(--rest);
+    font-size: 64px;
+    font-weight: 700;
+  }
+  .rest-skip {
+    color: #fff;
+    font-size: 14px;
+    margin-top: 20px;
+    opacity: 0.7;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+
+  /* Complete screen */
+  .complete-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+  }
+  .complete-screen.show { display: block; }
+  .complete-emoji { font-size: 64px; margin-bottom: 16px; }
+  .complete-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .complete-sub {
+    font-size: 15px;
+    color: var(--hint);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .complete-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+  .stat-item { text-align: center; }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--active);
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--hint);
+    margin-top: 2px;
+  }
+  .complete-btn {
+    background: var(--btn);
+    color: var(--btn-text);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Rest day screen */
+  .rest-day {
+    text-align: center;
+    padding: 80px 24px;
+  }
+  .rest-day-emoji { font-size: 64px; margin-bottom: 16px; }
+  .rest-day-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .rest-day-sub { font-size: 15px; color: var(--hint); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<div class="rest-overlay" id="restOverlay">
+  <div class="rest-text">잠시 쉬어가요</div>
+  <div class="rest-timer" id="restTimer">15</div>
+  <button class="rest-skip" onclick="skipRest()">건너뛰기</button>
+</div>
+
+<script>
+// =============================================
+// Exercise Program Data (embedded from Python)
+// =============================================
+const PROGRAMS = {"1":{"1":{"title":"부드러운 전신 스트레칭","description":"하루를 여는 가벼운 스트레칭으로 뭉친 몸을 풀어줘요","duration_minutes":15,"exercises":[{"name":"목 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"고개를 천천히 좌우로 기울이고, 앞뒤로 숙여주세요","rest_seconds":10},{"name":"어깨 돌리기","duration_seconds":60,"sets":1,"reps":null,"description":"양 어깨를 크게 앞으로 10회, 뒤로 10회 돌려주세요","rest_seconds":10},{"name":"고양이-소 자세","duration_seconds":90,"sets":1,"reps":10,"description":"네발 자세에서 등을 둥글게 말았다가 오목하게 젖혀주세요","rest_seconds":10},{"name":"옆구리 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"서서 한 팔을 위로 뻗고 반대쪽으로 천천히 기울여주세요. 좌우 30초씩","rest_seconds":10},{"name":"허벅지 뒤쪽 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"앉아서 한 다리를 펴고 발끝을 향해 천천히 숙여주세요. 좌우 30초씩","rest_seconds":10},{"name":"나비 자세","duration_seconds":60,"sets":1,"reps":null,"description":"앉아서 발바닥을 모으고 무릎을 천천히 위아래로 움직여주세요","rest_seconds":10},{"name":"복식 호흡","duration_seconds":120,"sets":1,"reps":10,"description":"편하게 누워서 배에 손을 올리고, 코로 깊게 들이마시고 입으로 천천히 내쉬세요","rest_seconds":0}]},"2":{"title":"상체 이완 스트레칭","description":"아기 안느라 지친 어깨와 팔을 풀어줘요","duration_minutes":15,"exercises":[{"name":"손목 돌리기","duration_seconds":40,"sets":1,"reps":null,"description":"양손을 깍지 끼고 손목을 천천히 돌려주세요. 좌우 각 10회","rest_seconds":10},{"name":"가슴 열기 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"양손을 등 뒤에서 깍지 끼고 가슴을 활짝 열어주세요. 30초 유지","rest_seconds":10},{"name":"팔 교차 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"한 팔을 가슴 앞으로 쭉 뻗고 반대 손으로 당겨주세요. 좌우 30초씩","rest_seconds":10},{"name":"어깨 으쓱 & 이완","duration_seconds":60,"sets":1,"reps":10,"description":"어깨를 귀까지 올렸다가 힘을 빼고 툭 떨어뜨려주세요","rest_seconds":10},{"name":"상체 비틀기","duration_seconds":60,"sets":1,"reps":null,"description":"앉아서 한 손을 반대쪽 무릎에 대고 상체를 천천히 비틀어주세요. 좌우 30초씩","rest_seconds":10},{"name":"아기 자세 (차일드 포즈)","duration_seconds":90,"sets":1,"reps":null,"description":"무릎 꿇고 앞으로 팔을 쭉 뻗어 이마를 바닥에 대세요. 깊게 호흡하면서 90초 유지","rest_seconds":10},{"name":"목 좌우 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"한 손으로 머리를 잡고 반대쪽 어깨를 향해 천천히 당겨주세요. 좌우 30초씩","rest_seconds":0}]},"3":{"title":"하체 스트레칭 & 골반 이완","description":"골반과 다리 근육을 부드럽게 풀어줘요","duration_minutes":15,"exercises":[{"name":"골반 원 그리기","duration_seconds":60,"sets":1,"reps":null,"description":"서서 골반으로 큰 원을 그려주세요. 시계 방향, 반시계 방향 각 10회","rest_seconds":10},{"name":"런지 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"한 발을 앞으로 크게 내딛고 뒷다리 앞쪽을 늘려주세요. 좌우 30초씩","rest_seconds":10},{"name":"허벅지 안쪽 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"다리를 넓게 벌리고 서서 한쪽 무릎을 구부리며 반대쪽 허벅지 안쪽을 늘려주세요","rest_seconds":10},{"name":"종아리 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"벽에 손을 짚고 한 발을 뒤로 빼서 종아리를 늘려주세요. 좌우 30초씩","rest_seconds":10},{"name":"누워서 무릎 안기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 양 무릎을 가슴 쪽으로 안아주세요. 좌우로 살살 흔들어도 좋아요","rest_seconds":10},{"name":"누워서 다리 교차 비틀기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 한 무릎을 반대쪽으로 넘기고 시선은 반대쪽. 좌우 30초씩","rest_seconds":10},{"name":"시체 자세 (사바사나)","duration_seconds":120,"sets":1,"reps":null,"description":"편하게 누워서 온몸의 힘을 빼고 깊게 호흡하며 쉬어주세요","rest_seconds":0}]},"4":{"title":"호흡 & 코어 준비","description":"깊은 호흡으로 코어 근육을 깨워줘요","duration_minutes":15,"exercises":[{"name":"횡격막 호흡","duration_seconds":90,"sets":1,"reps":8,"description":"편하게 누워서 4초 들이쉬고, 4초 참고, 6초 내쉬세요","rest_seconds":10},{"name":"골반저근 운동 (케겔)","duration_seconds":90,"sets":3,"reps":10,"description":"소변을 참는 느낌으로 5초 조이고 5초 이완. 천천히 해주세요","rest_seconds":15},{"name":"누워서 배 수축","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고, 숨을 내쉬면서 배꼽을 등 쪽으로 살짝 당겨주세요","rest_seconds":10},{"name":"골반 기울이기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고, 골반을 살짝 위로 기울였다 내려주세요","rest_seconds":10},{"name":"고양이-소 자세","duration_seconds":60,"sets":1,"reps":8,"description":"네발 자세에서 호흡에 맞춰 등을 둥글게, 오목하게 번갈아 해주세요","rest_seconds":10},{"name":"복식 호흡 마무리","duration_seconds":90,"sets":1,"reps":5,"description":"편하게 누워서 깊은 호흡으로 마무리. 수고하셨어요!","rest_seconds":0}]},"5":{"title":"전신 가벼운 움직임","description":"한 주를 마무리하는 부드러운 전신 운동이에요","duration_minutes":15,"exercises":[{"name":"제자리 걷기","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 크게 흔들면서 제자리에서 가볍게 걸어주세요","rest_seconds":10},{"name":"팔 벌려 위로 뻗기","duration_seconds":60,"sets":1,"reps":10,"description":"숨을 들이쉬며 양팔을 옆으로 벌려 위로 쭉 뻗고, 내쉬며 내려주세요","rest_seconds":10},{"name":"허리 돌리기","duration_seconds":60,"sets":1,"reps":null,"description":"양손을 허리에 대고 큰 원을 그리며 허리를 돌려주세요. 좌우 각 10회","rest_seconds":10},{"name":"스쿼트 (얕게)","duration_seconds":60,"sets":2,"reps":8,"description":"발을 어깨 너비로 벌리고 의자에 앉듯이 살짝만 내려갔다 올라오세요","rest_seconds":15},{"name":"까치발 들기","duration_seconds":60,"sets":2,"reps":10,"description":"벽을 잡고 까치발로 올라갔다 천천히 내려오세요","rest_seconds":10},{"name":"전신 기지개","duration_seconds":60,"sets":1,"reps":null,"description":"양팔을 위로 뻗고 최대한 기지개를 켜주세요. 이번 주 수고 많았어요!","rest_seconds":0}]}},"2":{"1":{"title":"코어 기초 활성화","description":"약해진 코어 근육을 천천히 깨워줘요","duration_minutes":17,"exercises":[{"name":"복식 호흡 워밍업","duration_seconds":60,"sets":1,"reps":5,"description":"누워서 배에 손을 대고 깊은 복식 호흡 5회","rest_seconds":10},{"name":"케겔 운동","duration_seconds":90,"sets":3,"reps":10,"description":"5초 조이고 5초 이완. 3세트 해주세요","rest_seconds":15},{"name":"데드 벅 (변형)","duration_seconds":90,"sets":2,"reps":8,"description":"누워서 무릎 90도, 한쪽 발을 바닥 쪽으로 천천히 내렸다 올려주세요. 좌우 교대","rest_seconds":15},{"name":"브릿지","duration_seconds":90,"sets":2,"reps":10,"description":"누워서 무릎 세우고 엉덩이를 천천히 들어올렸다 내려주세요","rest_seconds":15},{"name":"버드독","duration_seconds":90,"sets":2,"reps":8,"description":"네발 자세에서 오른팔-왼다리를 동시에 뻗고 3초 유지. 좌우 교대","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"차일드 포즈로 편하게 쉬면서 마무리해요","rest_seconds":0}]},"2":{"title":"골반저근 집중","description":"출산 후 회복에 가장 중요한 골반저근 운동이에요","duration_minutes":15,"exercises":[{"name":"호흡 연결 케겔","duration_seconds":90,"sets":3,"reps":10,"description":"내쉬면서 조이고, 들이쉬면서 이완. 호흡과 연결해주세요","rest_seconds":15},{"name":"빠른 케겔","duration_seconds":60,"sets":2,"reps":15,"description":"빠르게 조였다 풀었다를 반복해주세요. 1초 조이기, 1초 이완","rest_seconds":15},{"name":"브릿지 + 케겔","duration_seconds":90,"sets":2,"reps":10,"description":"브릿지 올라가면서 케겔 조이기, 내려오면서 이완","rest_seconds":15},{"name":"클램쉘","duration_seconds":90,"sets":2,"reps":10,"description":"옆으로 누워서 무릎을 조개처럼 열었다 닫아주세요. 좌우","rest_seconds":15},{"name":"시체 자세 이완","duration_seconds":90,"sets":1,"reps":null,"description":"편하게 누워서 깊게 쉬어주세요","rest_seconds":0}]},"3":{"title":"코어 & 등 강화","description":"아기를 안을 때 필요한 등과 코어 힘을 길러줘요","duration_minutes":18,"exercises":[{"name":"고양이-소 자세 워밍업","duration_seconds":60,"sets":1,"reps":8,"description":"호흡에 맞춰 부드럽게 워밍업","rest_seconds":10},{"name":"버드독","duration_seconds":90,"sets":3,"reps":8,"description":"팔-다리를 뻗고 5초 유지. 배에 힘 유지하면서","rest_seconds":15},{"name":"플랭크 (무릎 대고)","duration_seconds":90,"sets":3,"reps":null,"description":"무릎을 대고 20초 유지. 엉덩이가 올라가지 않게 주의","rest_seconds":15},{"name":"슈퍼맨 (변형)","duration_seconds":60,"sets":2,"reps":8,"description":"엎드려서 팔다리를 살짝만 들어올려주세요. 3초 유지","rest_seconds":15},{"name":"사이드 플랭크 (무릎)","duration_seconds":60,"sets":2,"reps":null,"description":"무릎 대고 옆으로 15초 유지. 좌우","rest_seconds":15},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"차일드 포즈로 편하게 마무리","rest_seconds":0}]},"4":{"title":"하체 & 골반 안정화","description":"골반 주변 근육을 안정시키는 운동이에요","duration_minutes":17,"exercises":[{"name":"골반 원 그리기 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"서서 골반으로 원을 그려주세요. 좌우 각 10회","rest_seconds":10},{"name":"스쿼트","duration_seconds":90,"sets":3,"reps":10,"description":"어깨 너비로 서서 의자에 앉듯이 내려갔다 올라오세요","rest_seconds":15},{"name":"런지 (정지)","duration_seconds":90,"sets":2,"reps":8,"description":"한 발을 앞으로 내딛고 양 무릎을 90도로 구부렸다 올라오세요. 좌우","rest_seconds":15},{"name":"클램쉘","duration_seconds":60,"sets":2,"reps":12,"description":"옆으로 누워 무릎을 열었다 닫아주세요. 좌우","rest_seconds":15},{"name":"까치발 들기","duration_seconds":60,"sets":2,"reps":12,"description":"벽을 잡고 천천히 올라갔다 내려오세요","rest_seconds":10},{"name":"전신 스트레칭 마무리","duration_seconds":90,"sets":1,"reps":null,"description":"허벅지, 종아리, 골반 스트레칭으로 마무리","rest_seconds":0}]},"5":{"title":"코어 통합 & 이완","description":"이번 주 배운 동작을 종합하고 몸을 쉬게 해줘요","duration_minutes":16,"exercises":[{"name":"제자리 걷기 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 크게 흔들며 1분 걷기","rest_seconds":10},{"name":"브릿지 + 케겔","duration_seconds":60,"sets":2,"reps":10,"description":"올라가면서 조이고, 내려오면서 이완","rest_seconds":15},{"name":"데드 벅","duration_seconds":60,"sets":2,"reps":8,"description":"누워서 팔다리를 교차로 내렸다 올리기","rest_seconds":15},{"name":"스쿼트","duration_seconds":60,"sets":2,"reps":10,"description":"천천히 내려갔다 올라오기","rest_seconds":15},{"name":"전신 스트레칭","duration_seconds":120,"sets":1,"reps":null,"description":"목-어깨-허리-다리 순서로 전체 스트레칭","rest_seconds":10},{"name":"시체 자세 명상","duration_seconds":120,"sets":1,"reps":null,"description":"눈 감고 편하게 누워서 이번 주 수고한 나에게 잘했다고 말해주세요","rest_seconds":0}]}},"3":{"1":{"title":"상체 근력 기초","description":"팔과 어깨 근력을 천천히 키워줘요","duration_minutes":18,"exercises":[{"name":"팔 돌리기 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"양팔을 옆으로 뻗고 작은 원에서 큰 원으로 돌리기","rest_seconds":10},{"name":"벽 푸시업","duration_seconds":90,"sets":3,"reps":10,"description":"벽에 손을 짚고 팔굽혀펴기. 가슴이 벽에 닿을 때까지 내려갔다 밀어올리세요","rest_seconds":15},{"name":"오버헤드 프레스 (물병)","duration_seconds":90,"sets":3,"reps":10,"description":"물병을 들고 머리 위로 밀어올렸다 내려주세요","rest_seconds":15},{"name":"이두 컬 (물병)","duration_seconds":60,"sets":2,"reps":12,"description":"물병을 들고 팔꿈치를 고정한 채 팔을 굽혔다 펴주세요","rest_seconds":15},{"name":"플랭크 (무릎)","duration_seconds":60,"sets":2,"reps":null,"description":"무릎 대고 25초 유지","rest_seconds":15},{"name":"가슴 스트레칭 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"벽에 팔을 대고 가슴을 열어주세요. 좌우 30초씩","rest_seconds":0}]},"2":{"title":"하체 근력 기초","description":"다리와 엉덩이 힘을 키워줘요","duration_minutes":18,"exercises":[{"name":"제자리 행진 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"무릎을 높이 올리며 제자리 행진 1분","rest_seconds":10},{"name":"스쿼트","duration_seconds":90,"sets":3,"reps":12,"description":"천천히 3초 내려가고 1초 올라오기. 무릎이 발끝을 넘지 않게","rest_seconds":15},{"name":"워킹 런지","duration_seconds":90,"sets":2,"reps":10,"description":"앞으로 걸으며 런지. 공간이 좁으면 제자리 런지도 OK","rest_seconds":15},{"name":"힙 쓰러스트","duration_seconds":90,"sets":3,"reps":12,"description":"등을 소파에 기대고 엉덩이를 높이 밀어올려주세요","rest_seconds":15},{"name":"사이드 레그 레이즈","duration_seconds":60,"sets":2,"reps":12,"description":"옆으로 누워 위쪽 다리를 올렸다 내려주세요. 좌우","rest_seconds":10},{"name":"하체 스트레칭 마무리","duration_seconds":90,"sets":1,"reps":null,"description":"허벅지, 종아리, 엉덩이 스트레칭","rest_seconds":0}]},"3":{"title":"코어 & 등 강화","description":"아기를 안고 수유하는 데 필요한 근력이에요","duration_minutes":18,"exercises":[{"name":"고양이-소 자세 워밍업","duration_seconds":60,"sets":1,"reps":8,"description":"호흡과 함께 부드럽게","rest_seconds":10},{"name":"플랭크 (무릎 or 풀)","duration_seconds":90,"sets":3,"reps":null,"description":"가능하면 풀 플랭크 20초, 힘들면 무릎 대고 30초","rest_seconds":15},{"name":"사이드 플랭크","duration_seconds":60,"sets":2,"reps":null,"description":"무릎 대고 20초 유지. 좌우","rest_seconds":15},{"name":"슈퍼맨","duration_seconds":60,"sets":3,"reps":10,"description":"엎드려서 팔다리를 살짝 들어올리고 3초 유지","rest_seconds":15},{"name":"브릿지","duration_seconds":60,"sets":3,"reps":12,"description":"위에서 3초 유지하며 엉덩이 쥐어짜기","rest_seconds":15},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"깊은 호흡과 함께 편하게 쉬기","rest_seconds":0}]},"4":{"title":"전신 서킷","description":"상체-하체-코어를 골고루 움직여요","duration_minutes":20,"exercises":[{"name":"제자리 걷기 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"팔 크게 흔들며 1분 걷기","rest_seconds":10},{"name":"스쿼트","duration_seconds":60,"sets":2,"reps":12,"description":"천천히 내려갔다 올라오기","rest_seconds":15},{"name":"벽 푸시업","duration_seconds":60,"sets":2,"reps":12,"description":"벽에서 푸시업","rest_seconds":15},{"name":"브릿지","duration_seconds":60,"sets":2,"reps":12,"description":"엉덩이 들어올리기","rest_seconds":15},{"name":"플랭크","duration_seconds":60,"sets":2,"reps":null,"description":"25초 유지","rest_seconds":15},{"name":"런지","duration_seconds":60,"sets":2,"reps":8,"description":"좌우 교대 런지","rest_seconds":15},{"name":"전신 스트레칭 마무리","duration_seconds":120,"sets":1,"reps":null,"description":"전신 스트레칭으로 마무리","rest_seconds":0}]},"5":{"title":"유연성 & 회복","description":"한 주 동안 힘든 근육을 풀어주는 회복 세션","duration_minutes":15,"exercises":[{"name":"전신 기지개","duration_seconds":60,"sets":1,"reps":null,"description":"크게 기지개 켜고 온몸을 흔들어주세요","rest_seconds":10},{"name":"어깨 & 목 스트레칭","duration_seconds":90,"sets":1,"reps":null,"description":"목, 어깨, 팔을 천천히 풀어주세요","rest_seconds":10},{"name":"허리 비틀기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 무릎을 좌우로 넘기며 허리 비틀기. 좌우 30초씩","rest_seconds":10},{"name":"나비 자세","duration_seconds":60,"sets":1,"reps":null,"description":"앉아서 발바닥 모으고 무릎을 살살 흔들기","rest_seconds":10},{"name":"비둘기 자세","duration_seconds":90,"sets":1,"reps":null,"description":"한 다리를 앞으로 접고 엉덩이를 내려주세요. 좌우 45초씩","rest_seconds":10},{"name":"시체 자세 명상","duration_seconds":120,"sets":1,"reps":null,"description":"눈 감고 깊은 호흡. 이번 주 정말 잘했어요!","rest_seconds":0}]}},"4":{"1":{"title":"전신 근력 A","description":"상체와 하체를 번갈아 하는 전신 운동","duration_minutes":20,"exercises":[{"name":"제자리 행진 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 크게 흔들며 워밍업","rest_seconds":10},{"name":"스쿼트 + 오버헤드","duration_seconds":90,"sets":3,"reps":10,"description":"스쿼트 올라오면서 물병을 머리 위로 밀기","rest_seconds":15},{"name":"벽 푸시업 (와이드)","duration_seconds":60,"sets":3,"reps":12,"description":"손 간격 넓게 벌리고 벽 푸시업","rest_seconds":15},{"name":"런지 + 회전","duration_seconds":90,"sets":2,"reps":8,"description":"런지 자세에서 상체를 앞쪽 무릎 방향으로 비틀기. 좌우","rest_seconds":15},{"name":"플랭크","duration_seconds":60,"sets":2,"reps":null,"description":"30초 유지 (힘들면 무릎)","rest_seconds":15},{"name":"전신 스트레칭 마무리","duration_seconds":90,"sets":1,"reps":null,"description":"운동한 부위 위주로 스트레칭","rest_seconds":0}]},"2":{"title":"코어 & 밸런스","description":"균형 감각과 코어를 동시에 키워요","duration_minutes":18,"exercises":[{"name":"한 발 서기 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"한 발로 30초씩 서기. 벽을 잡아도 OK","rest_seconds":10},{"name":"버드독 (3초 유지)","duration_seconds":90,"sets":3,"reps":10,"description":"팔-다리를 뻗고 3초 유지. 좌우 교대","rest_seconds":15},{"name":"싱글 레그 브릿지","duration_seconds":90,"sets":2,"reps":8,"description":"한 다리를 들고 브릿지. 좌우 교대","rest_seconds":15},{"name":"플랭크 탭","duration_seconds":60,"sets":2,"reps":10,"description":"플랭크 자세에서 어깨를 번갈아 터치","rest_seconds":15},{"name":"스쿼트 (3초 유지)","duration_seconds":60,"sets":2,"reps":10,"description":"아래에서 3초 유지하고 올라오기","rest_seconds":15},{"name":"명상 호흡 마무리","duration_seconds":90,"sets":1,"reps":null,"description":"편하게 앉아서 깊은 호흡 5회","rest_seconds":0}]},"3":{"title":"전신 근력 B","description":"다양한 근육을 골고루 자극해요","duration_minutes":20,"exercises":[{"name":"점핑잭 (소프트)","duration_seconds":60,"sets":1,"reps":null,"description":"가볍게 팔다리를 벌렸다 모으기. 점프 없이 한 발씩 해도 OK","rest_seconds":10},{"name":"와이드 스쿼트","duration_seconds":60,"sets":3,"reps":12,"description":"다리를 넓게 벌리고 스쿼트. 안쪽 허벅지에 집중","rest_seconds":15},{"name":"푸시업 (무릎 or 풀)","duration_seconds":60,"sets":3,"reps":8,"description":"무릎을 대거나, 가능하면 풀 푸시업","rest_seconds":15},{"name":"리버스 런지","duration_seconds":60,"sets":2,"reps":10,"description":"뒤로 한 발 빼며 런지. 좌우 교대","rest_seconds":15},{"name":"마운틴 클라이머 (천천히)","duration_seconds":60,"sets":2,"reps":10,"description":"플랭크에서 무릎을 가슴 쪽으로 번갈아 당기기. 천천히!","rest_seconds":15},{"name":"전신 쿨다운","duration_seconds":120,"sets":1,"reps":null,"description":"스트레칭으로 마무리","rest_seconds":0}]},"4":{"title":"상체 + 코어 집중","description":"팔, 어깨, 코어를 종합적으로 단련해요","duration_minutes":18,"exercises":[{"name":"팔 돌리기 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"크고 작게 팔 돌리기","rest_seconds":10},{"name":"벽 푸시업","duration_seconds":60,"sets":3,"reps":15,"description":"빠르지 않게, 정확한 자세로","rest_seconds":15},{"name":"트라이셉 딥 (의자)","duration_seconds":60,"sets":2,"reps":10,"description":"의자에 손을 짚고 팔을 굽혔다 펴기","rest_seconds":15},{"name":"플랭크","duration_seconds":60,"sets":3,"reps":null,"description":"30초 유지","rest_seconds":15},{"name":"데드 벅","duration_seconds":60,"sets":3,"reps":10,"description":"양팔-양다리 교차 내리기","rest_seconds":15},{"name":"어깨 스트레칭 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"어깨, 팔, 가슴 스트레칭","rest_seconds":0}]},"5":{"title":"4주 프로그램 완주 세션","description":"축하해요! 4주를 완주하는 마지막 운동이에요","duration_minutes":18,"exercises":[{"name":"가벼운 전신 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"제자리 걷기 + 팔 흔들기","rest_seconds":10},{"name":"스쿼트","duration_seconds":60,"sets":2,"reps":12,"description":"이제 익숙하죠? 자세에 집중","rest_seconds":15},{"name":"푸시업","duration_seconds":60,"sets":2,"reps":10,"description":"벽이든 무릎이든 풀이든 자기 수준에 맞게","rest_seconds":15},{"name":"브릿지","duration_seconds":60,"sets":2,"reps":12,"description":"엉덩이 쥐어짜며 올리기","rest_seconds":15},{"name":"플랭크","duration_seconds":45,"sets":2,"reps":null,"description":"30초 유지. 이제 훨씬 수월하죠?","rest_seconds":15},{"name":"전신 스트레칭","duration_seconds":120,"sets":1,"reps":null,"description":"전신을 천천히 풀어주세요","rest_seconds":10},{"name":"명상 & 감사 호흡","duration_seconds":120,"sets":1,"reps":null,"description":"눈 감고 깊게 호흡하며 4주를 완주한 자신을 칭찬해주세요. 정말 대단해요!","rest_seconds":0}]}}};
+
+// =============================================
+// Program Data (inline for standalone use)
+// =============================================
+function getPrograms() {
+  if (PROGRAMS) return PROGRAMS;
+  // Fallback: generate from week/day
+  return null;
+}
+
+// Determine current week (1-4 cycling) and day (1=Mon, 7=Sun)
+function getCurrentWeekDay() {
+  const now = new Date();
+  // ISO week calculation
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  const week = ((weekNo - 1) % 4) + 1;
+  const day = now.getDay() === 0 ? 7 : now.getDay(); // 1=Mon..7=Sun
+  return { week, day };
+}
+
+// =============================================
+// App State
+// =============================================
+let currentExerciseIndex = 0;
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+let completedExercises = [];
+let startTime = null;
+let program = null;
+
+// =============================================
+// Initialize
+// =============================================
+function init() {
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  const { week, day } = getCurrentWeekDay();
+
+  // Weekend check
+  if (day > 5) {
+    showRestDay();
+    return;
+  }
+
+  // Try to get program from URL params or embedded data
+  const params = new URLSearchParams(window.location.search);
+  const paramWeek = parseInt(params.get('week')) || week;
+  const paramDay = parseInt(params.get('day')) || day;
+
+  // Load program from embedded data
+  const programs = getPrograms();
+  if (programs && programs[paramWeek] && programs[paramWeek][paramDay]) {
+    program = programs[paramWeek][paramDay];
+    program.week = paramWeek;
+    program.day = paramDay;
+  } else {
+    // Fallback: use hardcoded daily programs from fetch
+    program = getFallbackProgram(paramWeek, paramDay);
+  }
+
+  if (!program) {
+    showRestDay();
+    return;
+  }
+
+  startTime = Date.now();
+  renderApp();
+}
+
+function getFallbackProgram(week, day) {
+  // Minimal fallback programs
+  const dayNames = { 1: '월', 2: '화', 3: '수', 4: '목', 5: '금' };
+  return {
+    week: week,
+    day: day,
+    title: `${week}주차 ${dayNames[day]}요일 운동`,
+    description: '오늘의 운동을 시작해볼까요?',
+    duration_minutes: 15,
+    exercises: [
+      { name: '스트레칭', duration_seconds: 120, sets: 1, reps: null, description: '전신을 부드럽게 풀어주세요', rest_seconds: 10 },
+      { name: '스쿼트', duration_seconds: 90, sets: 2, reps: 10, description: '천천히 내려갔다 올라오세요', rest_seconds: 15 },
+      { name: '브릿지', duration_seconds: 90, sets: 2, reps: 10, description: '엉덩이를 들어올려주세요', rest_seconds: 15 },
+      { name: '플랭크', duration_seconds: 60, sets: 2, reps: null, description: '20초 유지해주세요', rest_seconds: 10 },
+      { name: '쿨다운', duration_seconds: 120, sets: 1, reps: null, description: '깊은 호흡으로 마무리', rest_seconds: 0 },
+    ]
+  };
+}
+
+// =============================================
+// Rendering
+// =============================================
+function renderApp() {
+  const app = document.getElementById('app');
+  const totalExercises = program.exercises.length;
+  const progressPct = (completedExercises.length / totalExercises) * 100;
+  const weekNames = { 1: '기초 회복', 2: '코어 활성화', 3: '근력 강화', 4: '전신 통합' };
+
+  let html = `
+    <div class="header">
+      <h1>${program.title}</h1>
+      <div class="subtitle">${program.description}</div>
+      <div class="week-badge">${program.week}주차 · ${weekNames[program.week] || ''}</div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${progressPct}%"></div>
+      </div>
+      <div class="progress-text">${completedExercises.length} / ${totalExercises}</div>
+    </div>
+
+    <div class="exercise-list">
+  `;
+
+  program.exercises.forEach((ex, i) => {
+    const isDone = completedExercises.includes(i);
+    const isActive = i === currentExerciseIndex && !isDone;
+    const cls = isDone ? 'done' : isActive ? 'active' : '';
+    const metaInfo = [];
+    if (ex.sets > 1) metaInfo.push(`${ex.sets}세트`);
+    if (ex.reps) metaInfo.push(`${ex.reps}회`);
+    metaInfo.push(`${ex.duration_seconds}초`);
+
+    html += `
+      <div class="exercise-card ${cls}" id="card-${i}" onclick="selectExercise(${i})">
+        <div class="card-top">
+          <div class="card-number">${isDone ? '✓' : i + 1}</div>
+          <div class="card-meta">${metaInfo.join(' · ')}</div>
+        </div>
+        <div class="card-title">${ex.name}</div>
+        <div class="card-desc">${ex.description}</div>
+    `;
+
+    if (isActive) {
+      html += renderTimer(ex);
+    }
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  app.innerHTML = html;
+
+  // Scroll active card into view
+  const activeCard = document.getElementById(`card-${currentExerciseIndex}`);
+  if (activeCard) {
+    activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function renderTimer(exercise) {
+  const display = formatTime(timerSeconds || exercise.duration_seconds);
+  const label = exercise.reps
+    ? `${exercise.sets > 1 ? exercise.sets + '세트 × ' : ''}${exercise.reps}회`
+    : '시간 유지';
+
+  let buttons = '';
+  if (!timerRunning && timerSeconds === 0) {
+    buttons = `
+      <button class="timer-btn btn-start" onclick="event.stopPropagation(); startTimer(${exercise.duration_seconds})">시작</button>
+      <button class="timer-btn btn-skip" onclick="event.stopPropagation(); completeExercise()">건너뛰기</button>
+    `;
+  } else if (timerRunning) {
+    buttons = `
+      <button class="timer-btn btn-pause" onclick="event.stopPropagation(); pauseTimer()">일시정지</button>
+      <button class="timer-btn btn-next" onclick="event.stopPropagation(); completeExercise()">완료</button>
+    `;
+  } else {
+    buttons = `
+      <button class="timer-btn btn-start" onclick="event.stopPropagation(); resumeTimer()">계속</button>
+      <button class="timer-btn btn-next" onclick="event.stopPropagation(); completeExercise()">완료</button>
+    `;
+  }
+
+  return `
+    <div class="timer-section">
+      <div class="timer-label">${label}</div>
+      <div class="timer-display">${display}</div>
+      <div class="timer-buttons">${buttons}</div>
+    </div>
+  `;
+}
+
+// =============================================
+// Timer Logic
+// =============================================
+function startTimer(seconds) {
+  timerSeconds = seconds;
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerSeconds = 0;
+      // Vibrate if available
+      if (navigator.vibrate) navigator.vibrate(200);
+      completeExercise();
+      return;
+    }
+    updateTimerDisplay();
+  }, 1000);
+  renderApp();
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  renderApp();
+}
+
+function resumeTimer() {
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerSeconds = 0;
+      if (navigator.vibrate) navigator.vibrate(200);
+      completeExercise();
+      return;
+    }
+    updateTimerDisplay();
+  }, 1000);
+  renderApp();
+}
+
+function updateTimerDisplay() {
+  const el = document.querySelector('.timer-display');
+  if (el) el.textContent = formatTime(timerSeconds);
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+// =============================================
+// Exercise Flow
+// =============================================
+function selectExercise(index) {
+  if (completedExercises.includes(index)) return;
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = 0;
+  currentExerciseIndex = index;
+  renderApp();
+}
+
+function completeExercise() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = 0;
+
+  if (!completedExercises.includes(currentExerciseIndex)) {
+    completedExercises.push(currentExerciseIndex);
+  }
+
+  const exercise = program.exercises[currentExerciseIndex];
+  const allDone = completedExercises.length === program.exercises.length;
+
+  if (allDone) {
+    showCompleteScreen();
+    return;
+  }
+
+  // Show rest if needed, then move to next
+  if (exercise.rest_seconds > 0) {
+    showRest(exercise.rest_seconds, () => {
+      moveToNext();
+    });
+  } else {
+    moveToNext();
+  }
+}
+
+function moveToNext() {
+  // Find next incomplete exercise
+  for (let i = 0; i < program.exercises.length; i++) {
+    const idx = (currentExerciseIndex + 1 + i) % program.exercises.length;
+    if (!completedExercises.includes(idx)) {
+      currentExerciseIndex = idx;
+      renderApp();
+      return;
+    }
+  }
+  // All done
+  showCompleteScreen();
+}
+
+// =============================================
+// Rest Timer
+// =============================================
+let restCallback = null;
+let restInterval = null;
+
+function showRest(seconds, callback) {
+  restCallback = callback;
+  const overlay = document.getElementById('restOverlay');
+  const timerEl = document.getElementById('restTimer');
+  overlay.classList.add('show');
+  timerEl.textContent = seconds;
+
+  let remaining = seconds;
+  restInterval = setInterval(() => {
+    remaining--;
+    timerEl.textContent = remaining;
+    if (remaining <= 0) {
+      hideRest();
+    }
+  }, 1000);
+}
+
+function hideRest() {
+  clearInterval(restInterval);
+  document.getElementById('restOverlay').classList.remove('show');
+  if (restCallback) {
+    restCallback();
+    restCallback = null;
+  }
+}
+
+function skipRest() {
+  hideRest();
+}
+
+// =============================================
+// Complete Screen
+// =============================================
+function showCompleteScreen() {
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const minutes = Math.round(elapsed / 60);
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="complete-screen show">
+      <div class="complete-emoji">🎉</div>
+      <div class="complete-title">운동 완료!</div>
+      <div class="complete-sub">오늘도 수고했어요~<br>꾸준히 하는 게 제일 중요한 거예요!</div>
+      <div class="complete-stats">
+        <div class="stat-item">
+          <div class="stat-value">${completedExercises.length}</div>
+          <div class="stat-label">완료한 운동</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">${minutes || 1}</div>
+          <div class="stat-label">소요 시간(분)</div>
+        </div>
+      </div>
+      <button class="complete-btn" onclick="sendResult()">결과 저장하기</button>
+    </div>
+  `;
+}
+
+function showRestDay() {
+  document.getElementById('app').innerHTML = `
+    <div class="rest-day">
+      <div class="rest-day-emoji">😴</div>
+      <div class="rest-day-title">오늘은 휴식일이에요</div>
+      <div class="rest-day-sub">주말엔 푹 쉬세요~<br>다음 주 월요일에 만나요!</div>
+    </div>
+  `;
+}
+
+// =============================================
+// Send Result to Bot
+// =============================================
+function sendResult() {
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const exerciseNames = completedExercises.map(i => program.exercises[i].name);
+
+  const result = {
+    week: program.week,
+    day: program.day,
+    completed_exercises: exerciseNames,
+    duration_seconds: elapsed,
+    total_exercises: program.exercises.length,
+    completed_count: completedExercises.length,
+  };
+
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.sendData(JSON.stringify(result));
+  } else {
+    // Debug mode: show result
+    alert('Result: ' + JSON.stringify(result, null, 2));
+  }
+}
+
+// =============================================
+// Start
+// =============================================
+init();
+</script>
+</body>
+</html>
