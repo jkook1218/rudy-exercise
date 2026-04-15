@@ -802,9 +802,17 @@ function escapeHtml(value) {
 }
 
 function getExerciseVisualSpec(name) {
-  const compactName = name.replace(/\s+/g, '');
+  const normalize = (value) => String(value)
+    .replace(/\s+/g, '')
+    .replace(/[()]/g, '')
+    .toLowerCase();
+
+  const compactName = normalize(name);
   for (const rule of VISUAL_RULES) {
-    if (rule.keys.some(key => name.includes(key) || compactName.includes(key.replace(/\s+/g, '')))) {
+    if (rule.keys.some((key) => {
+      const compactKey = normalize(key);
+      return compactName.includes(compactKey);
+    })) {
       return rule;
     }
   }
@@ -815,9 +823,10 @@ function svgHead(x, y, s = 1) {
   const r = 13 * s;
   return `
     <g>
-      <circle cx="${x}" cy="${y}" r="${r}" fill="#f2c4b3"/>
-      <path d="M${x - 10 * s} ${y - 5 * s} C${x - 6 * s} ${y - 19 * s}, ${x + 13 * s} ${y - 18 * s}, ${x + 12 * s} ${y - 2 * s}" fill="#3a2822"/>
-      <circle cx="${x + 15 * s}" cy="${y - 1 * s}" r="${5 * s}" fill="#3a2822"/>
+      <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${Math.round(r * 1.12)}" fill="#f5d2bf"/>
+      <path d="M${x - r * 0.58} ${y + r * 0.9} C${x - r * 0.6} ${y + 1.45 * r}, ${x - r * 0.18} ${y + 1.45 * r}, ${x} ${y + 1.45 * r} L${x} ${y + 1.45 * r} C${x + 0.4 * r} ${y + 1.45 * r}, ${x + 0.58 * r} ${y + 1.2 * r}, ${x + 0.7 * r} ${y + 0.96 * r} C${x + 1.05 * r} ${y + 0.82 * r}, ${x + 1.2 * r} ${y + 0.25 * r}, ${x + 1.2 * r} ${y - 0.25 * r} C${x + 1.24 * r} ${y - 0.9 * r}, ${x + 0.4 * r} ${y - 1.24 * r}, ${x - 0.28 * r} ${y - 1.26 * r} L${x - r * 0.08} ${y - 1.26 * r} C${x + 0.2 * r} ${y - 1.24 * r}, ${x + 0.3 * r} ${y - 0.8 * r}, ${x + 0.46 * r} ${y - 0.2 * r} C${x + 0.26 * r} ${y - 0.88 * r}, ${x - 0.2 * r} ${y - 0.94 * r}, ${x - 0.4 * r} ${y - 0.34 * r} Z" fill="#4a362b"/>
+      <ellipse cx="${x - r * 0.52}" cy="${y + r * 0.42}" rx="${r * 0.28}" ry="${r * 0.35}" fill="#4a362b"/>
+      <ellipse cx="${x + r * 0.36}" cy="${y + r * 0.58}" rx="${r * 0.2}" ry="${r * 0.35}" fill="#4a362b"/>
     </g>`;
 }
 
@@ -833,224 +842,418 @@ function focusCircle(cx, cy, r) {
   return `<circle class="focus-ring" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="6 7"/>`;
 }
 
-function drawPose(pose) {
-  const limb = 'fill="none" stroke="var(--text)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"';
-  const ghost = 'fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"';
+function limb(x1, y1, x2, y2, ghost = false, width = 10, color = 'var(--text)') {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${ghost ? 'class="pose-b"' : ''} fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
 
+function joint(x, y, r = 4.8) {
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="${'var(--text)'}"/>`;
+}
+
+function drawPose(pose) {
+  const wide = 'fill="none" stroke="var(--text)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"';
   switch (pose) {
     case 'breathing':
     case 'pelvicBreath':
-      return `${mat(210)}
-        ${svgHead(70, 172, 0.9)}
-        <path ${limb} d="M84 178 L132 166 L178 174"/>
-        <path ${limb} d="M132 166 L158 196 L190 210"/>
-        <path ${limb} d="M132 166 L112 198 L82 210"/>
-        <path ${limb} d="M112 164 L132 154 M150 168 L132 154"/>
-        ${focusCircle(132, 157, 28)}
-        ${arrowPath('M104 150 C84 139, 84 118, 103 108')}
-        ${arrowPath('M160 150 C182 139, 184 118, 164 108')}`;
+      return `${mat(214)}
+        ${svgHead(140, 64, 1)}
+        ${limb(140, 77, 140, 130, false, 10)}
+        ${limb(140, 130, 110, 188)}
+        ${limb(140, 130, 170, 188)}
+        ${limb(110, 145, 70, 132)}
+        ${limb(170, 145, 208, 132)}
+        ${focusCircle(140, 142, 34)}
+        ${arrowPath('M110 112 C94 102, 90 84, 104 67')}
+        ${arrowPath('M170 112 C186 102, 190 84, 176 67')}`;
+
     case 'pelvicTilt':
       return `${mat(210)}
-        ${svgHead(70, 174, 0.9)}
-        <path ${limb} d="M84 180 L128 170 L176 180"/>
-        <path ${limb} d="M128 170 L157 198 L190 210"/>
-        <path ${limb} d="M128 170 L105 198 L78 210"/>
-        <path class="pose-b" ${ghost} d="M91 182 C120 158, 150 158, 178 182"/>
-        ${focusCircle(132, 172, 24)}
-        ${arrowPath('M132 191 C132 177, 132 166, 132 153')}`;
+        ${svgHead(140, 64, 0.95)}
+        ${limb(140, 77, 140, 130)}
+        ${limb(140, 130, 98, 180, true)}
+        ${limb(98, 180, 70, 218, true)}
+        ${limb(140, 130, 185, 168)}
+        ${limb(185, 168, 204, 218)}
+        ${limb(98, 180, 140, 168)}
+        ${limb(140, 77, 115, 78)}
+        ${limb(140, 77, 166, 78)}
+        ${focusCircle(98, 180, 22)}
+        ${arrowPath('M140 170 C140 182, 140 195, 140 214')}`;
+
     case 'bridge':
-      return `${mat(218)}
-        ${svgHead(58, 183, 0.85)}
-        <path ${limb} d="M72 188 L96 184 L142 142 L188 184"/>
-        <path ${limb} d="M188 184 L222 218 M96 184 L74 218"/>
-        <path ${limb} d="M105 178 L134 154"/>
-        <path class="pose-b" ${ghost} d="M92 186 L140 172 L188 184"/>
-        ${arrowPath('M142 190 C142 172, 142 156, 142 139')}`;
+      return `${mat(216)}
+        ${svgHead(140, 150, 1)}
+        ${limb(140, 163, 140, 128)}
+        ${limb(140, 128, 80, 150, true)}
+        ${limb(80, 150, 92, 220)}
+        ${limb(140, 128, 198, 150, true)}
+        ${limb(198, 150, 190, 220)}
+        ${limb(140, 163, 120, 188)}
+        ${limb(140, 163, 160, 188)}
+        ${focusCircle(92, 220, 14)}
+        ${focusCircle(190, 220, 14)}
+        ${arrowPath('M140 188 C140 170, 140 156, 140 140')}`;
+
     case 'deadbug':
-      return `${mat(220)}
-        ${svgHead(86, 174, 0.85)}
-        <path ${limb} d="M100 180 L142 166 L184 180"/>
-        <path ${limb} d="M132 166 L118 118 M152 168 L180 124"/>
-        <path ${limb} d="M142 166 L128 204 M165 176 L204 202"/>
-        <path class="pose-b" ${ghost} d="M132 166 L98 132 M158 170 L168 210"/>
-        ${arrowPath('M185 123 C204 145, 205 174, 190 198')}`;
+      return `${mat(216)}
+        ${svgHead(140, 72, 0.9)}
+        ${limb(140, 85, 140, 130)}
+        ${limb(140, 130, 87, 150)}
+        ${limb(140, 130, 140, 200)}
+        ${limb(140, 130, 193, 150)}
+        ${limb(87, 150, 57, 120, true)}
+        ${limb(87, 150, 64, 220, true)}
+        ${limb(193, 150, 220, 120, true)}
+        ${limb(193, 150, 226, 218, true)}
+        ${focusCircle(57, 120, 12)}
+        ${focusCircle(220, 120, 12)}
+        ${arrowPath('M57 110 C80 95, 128 94, 142 120')}
+        ${arrowPath('M223 110 C200 95, 152 94, 138 120')}`;
+
     case 'catCow':
-      return `${mat(218)}
-        ${svgHead(202, 137, 0.8)}
-        <path ${limb} d="M84 178 L105 138 C138 112, 166 113, 194 140"/>
-        <path ${limb} d="M107 149 L102 214 M178 150 L180 214 M100 214 L82 218 M180 214 L204 218"/>
-        <path class="pose-b" ${ghost} d="M105 142 C138 164, 168 164, 194 141"/>
-        ${arrowPath('M125 122 C145 96, 170 103, 185 122')}`;
+      return `${mat(214)}
+        ${svgHead(220, 122, 0.88)}
+        ${limb(220, 135, 150, 130)}
+        ${limb(150, 130, 100, 162, false, 10, 'var(--text-secondary)')}
+        ${limb(100, 162, 86, 214)}
+        ${limb(150, 130, 200, 162, false, 10, 'var(--text-secondary)')}
+        ${limb(200, 162, 214, 214)}
+        ${limb(150, 130, 150, 88, true)}
+        ${limb(150, 88, 120, 104, true)}
+        ${limb(150, 88, 173, 104, true)}
+        ${focusCircle(150, 130, 24)}
+        ${arrowPath('M95 138 C95 113, 127 96, 150 106')}`;
+
     case 'birdDog':
-      return `${mat(218)}
-        ${svgHead(165, 134, 0.78)}
-        <path ${limb} d="M83 162 L132 142 L176 160"/>
-        <path ${limb} d="M132 143 L93 108 M93 162 L70 213 M176 160 L191 213"/>
-        <path ${limb} d="M90 162 L48 152 M176 160 L230 142"/>
-        ${arrowPath('M88 116 C72 111, 59 119, 50 141')}
-        ${arrowPath('M207 145 C224 133, 239 129, 251 139')}`;
-    case 'bearHold':
-      return `${mat(218)}
-        ${svgHead(180, 137, 0.78)}
-        <path ${limb} d="M82 164 L130 145 L182 160"/>
-        <path ${limb} d="M102 161 L92 207 M165 160 L174 207 M92 207 L80 218 M174 207 L192 218"/>
-        ${focusCircle(136, 158, 24)}
-        ${arrowPath('M118 209 C122 197, 122 189, 118 181')}`;
+      return `${mat(216)}
+        ${svgHead(138, 72, 0.9)}
+        ${limb(138, 85, 138, 130)}
+        ${limb(138, 130, 94, 170)}
+        ${limb(94, 170, 69, 213)}
+        ${limb(138, 130, 182, 170)}
+        ${limb(182, 170, 211, 217)}
+        ${limb(138, 130, 66, 132)}
+        ${limb(138, 130, 210, 90)}
+        ${focusCircle(66, 132, 12)}
+        ${focusCircle(210, 90, 12)}
+        ${arrowPath('M138 132 C96 108, 66 112, 54 150')}
+        ${arrowPath('M138 132 C180 111, 210 126, 218 162')}`;
+
     case 'mountain':
     case 'plankTap':
     case 'plank':
-      return `${mat(220)}
-        ${svgHead(78, 151, 0.8)}
-        <path ${limb} d="M92 157 L136 150 L204 178"/>
-        <path ${limb} d="M118 154 L96 206 M140 151 L136 208 M204 178 L232 219"/>
-        <path class="pose-b" ${ghost} d="M202 178 L168 198 L146 219"/>
-        ${arrowPath('M177 202 C165 188, 157 178, 151 162')}`;
+      return `${mat(216)}
+        ${svgHead(70, 94, 0.86)}
+        ${limb(70, 101, 70, 156, false, 10, 'var(--text-secondary)')}
+        ${limb(70, 156, 70, 206)}
+        ${limb(70, 156, 116, 156)}
+        ${limb(116, 156, 190, 186)}
+        ${limb(190, 186, 222, 218)}
+        ${limb(116, 156, 116, 206)}
+        ${limb(116, 206, 152, 206)}
+        ${limb(190, 186, 210, 146, true)}
+        ${focusCircle(190, 186, 14)}
+        ${arrowPath('M168 193 C150 181, 141 167, 129 156')}`;
+
     case 'sidePlank':
-      return `${mat(220)}
-        ${svgHead(88, 154, 0.82)}
-        <path ${limb} d="M102 161 L154 174 L218 196"/>
-        <path ${limb} d="M125 168 L103 216 M152 174 L175 134 M204 192 L235 218"/>
-        ${arrowPath('M155 205 C155 188, 160 177, 171 165')}`;
+      return `${mat(216)}
+        ${svgHead(72, 90, 0.84)}
+        ${limb(72, 96, 72, 154)}
+        ${limb(72, 154, 116, 192)}
+        ${limb(116, 192, 190, 182)}
+        ${limb(190, 182, 226, 214)}
+        ${limb(72, 154, 116, 132, true)}
+        ${limb(116, 132, 172, 132)}
+        ${limb(72, 154, 96, 188, false, 10, 'var(--text-secondary)')}
+        ${focusCircle(72, 154, 15)}
+        ${arrowPath('M116 132 C145 123, 168 132, 190 145')}`;
+
     case 'superman':
-      return `${mat(218)}
-        ${svgHead(82, 170, 0.8)}
-        <path ${limb} d="M98 176 L150 168 L202 176"/>
-        <path ${limb} d="M124 171 L86 150 M178 172 L226 150 M144 169 L116 204 M172 171 L214 204"/>
-        <path class="pose-b" ${ghost} d="M86 150 L70 138 M226 150 L244 138 M116 204 L104 218 M214 204 L232 218"/>
-        ${arrowPath('M142 191 C142 175, 142 164, 142 151')}`;
+      return `${mat(214)}
+        ${svgHead(80, 74, 0.84)}
+        ${limb(80, 88, 80, 136)}
+        ${limb(80, 136, 144, 174)}
+        ${limb(144, 174, 200, 214, false, 10, 'var(--text-secondary)')}
+        ${limb(80, 136, 30, 106)}
+        ${limb(80, 136, 134, 84)}
+        ${limb(134, 84, 208, 64, true)}
+        ${limb(144, 174, 192, 128, true)}
+        ${limb(144, 174, 92, 210, true)}
+        ${focusCircle(30, 106, 11)}
+        ${focusCircle(208, 64, 11)}
+        ${focusCircle(192, 128, 11)}
+        ${focusCircle(92, 210, 11)}
+        ${arrowPath('M70 136 C50 140, 38 127, 28 108')}`;
+
     case 'sideLeg':
-      return `${mat(220)}
-        ${svgHead(80, 174, 0.82)}
-        <path ${limb} d="M94 180 L145 184 L198 206"/>
-        <path ${limb} d="M124 183 L98 207 M145 184 L196 162"/>
-        <path class="pose-b" ${ghost} d="M145 184 L204 132"/>
-        ${arrowPath('M188 170 C207 154, 215 139, 211 123')}`;
+      return `${mat(216)}
+        ${svgHead(140, 64, 0.9)}
+        ${limb(140, 77, 140, 132)}
+        ${limb(140, 132, 96, 188)}
+        ${limb(96, 188, 70, 218)}
+        ${limb(140, 132, 186, 188)}
+        ${limb(186, 188, 222, 208)}
+        ${limb(140, 132, 186, 132, true)}
+        ${limb(186, 132, 238, 88, true)}
+        ${limb(140, 132, 96, 132, true)}
+        ${focusCircle(238, 88, 12)}
+        ${arrowPath('M238 87 C229 112, 214 136, 214 160')}`;
+
     case 'wallPushup':
-      return `<rect x="224" y="58" width="8" height="174" rx="4" fill="var(--surface2)"/>
-        ${svgHead(150, 92, 0.85)}
-        <path ${limb} d="M143 108 L118 154 L86 214"/>
-        <path ${limb} d="M124 143 L222 111 M128 153 L222 146"/>
-        <path ${limb} d="M118 154 L152 214 M86 214 L72 226 M152 214 L174 226"/>
-        <path class="pose-b" ${ghost} d="M142 108 L105 154 L70 214"/>
-        ${arrowPath('M177 118 C194 116, 207 121, 219 133')}`;
+      return `${svgHead(214, 82, 0.86)}
+        <rect x="240" y="56" width="8" height="176" rx="4" fill="var(--surface2)"/>
+        ${limb(214, 91, 184, 130)}
+        ${limb(184, 130, 124, 208)}
+        ${limb(124, 208, 102, 226)}
+        ${limb(184, 130, 229, 110)}
+        ${limb(229, 110, 214, 218, false, 10, 'var(--text-secondary)')}
+        ${limb(184, 130, 204, 218)}
+        ${limb(214, 91, 130, 120, true)}
+        ${limb(130, 120, 88, 218, true)}
+        ${focusCircle(214, 91, 12)}
+        ${arrowPath('M198 98 C220 111, 232 132, 238 152')}`;
+
     case 'pushup':
-      return `${mat(220)}
-        ${svgHead(78, 150, 0.8)}
-        <path ${limb} d="M92 156 L145 160 L212 183"/>
-        <path ${limb} d="M126 158 L106 218 M154 163 L153 218 M210 183 L236 219"/>
-        <path class="pose-b" ${ghost} d="M96 176 L148 180 L212 196"/>
-        ${arrowPath('M132 146 C132 162, 132 177, 132 193')}`;
+      return `${mat(214)}
+        ${svgHead(66, 86, 0.84)}
+        ${limb(66, 101, 66, 155)}
+        ${limb(66, 155, 112, 199)}
+        ${limb(112, 199, 200, 199)}
+        ${limb(200, 199, 241, 216)}
+        ${limb(112, 199, 66, 218, false, 10, 'var(--text-secondary)')}
+        ${limb(66, 155, 96, 136, true)}
+        ${limb(66, 155, 96, 118, true)}
+        ${focusCircle(112, 199, 12)}
+        ${arrowPath('M66 152 C66 166, 66 181, 66 198')}`;
+
     case 'chairDip':
-      return `<rect x="150" y="148" width="74" height="12" rx="4" fill="var(--surface2)"/>
-        <rect x="205" y="160" width="10" height="62" rx="4" fill="var(--surface2)"/>
-        ${svgHead(122, 114, 0.82)}
-        <path ${limb} d="M126 130 L142 165 L108 190"/>
-        <path ${limb} d="M142 165 L154 150 M108 190 L174 218 M108 190 L84 218"/>
-        <path class="pose-b" ${ghost} d="M142 165 L135 190"/>
-        ${arrowPath('M125 153 C120 170, 122 183, 133 195')}`;
+      return `<rect x="166" y="150" width="72" height="10" rx="4" fill="var(--surface2)"/>
+        <rect x="218" y="160" width="11" height="64" rx="4" fill="var(--surface2)"/>
+        ${svgHead(132, 84, 0.82)}
+        ${limb(132, 99, 146, 151)}
+        ${limb(146, 151, 108, 204)}
+        ${limb(108, 204, 82, 226)}
+        ${limb(146, 151, 156, 136)}
+        ${limb(156, 136, 220, 206)}
+        ${limb(156, 136, 176, 118, true)}
+        ${limb(146, 151, 126, 201, true)}
+        ${focusCircle(108, 204, 11)}
+        ${arrowPath('M152 126 C144 146, 146 169, 154 191')}`;
+
     case 'squat':
-      return `${mat(222)}
-        ${svgHead(140, 58, 0.85)}
-        <path class="pose-b" ${ghost} d="M140 74 L140 128 L118 214 M140 128 L166 214"/>
-        <path ${limb} d="M140 76 L138 122 L108 158 L92 218"/>
-        <path ${limb} d="M138 122 L174 158 L202 218"/>
-        <path ${limb} d="M126 104 L93 126 M151 104 L184 126"/>
-        ${arrowPath('M216 89 C216 124, 216 151, 216 183')}`;
+      return `${mat(218)}
+        ${svgHead(142, 59, 0.85)}
+        ${limb(142, 72, 142, 128)}
+        ${limb(142, 128, 105, 196, true)}
+        ${limb(105, 196, 80, 218)}
+        ${limb(142, 128, 179, 196, true)}
+        ${limb(179, 196, 210, 218)}
+        ${limb(142, 128, 111, 126)}
+        ${limb(111, 126, 84, 153)}
+        ${limb(142, 128, 172, 126)}
+        ${limb(172, 126, 198, 153)}
+        ${focusCircle(105, 196, 12)}
+        ${focusCircle(179, 196, 12)}
+        ${arrowPath('M211 157 C212 184, 204 205, 183 218')}`;
+
     case 'lunge':
-      return `${mat(222)}
-        ${svgHead(138, 58, 0.85)}
-        <path ${limb} d="M138 75 L136 126 L104 170 L70 218"/>
-        <path ${limb} d="M136 126 L176 166 L224 218"/>
-        <path ${limb} d="M125 103 L95 134 M150 103 L184 134"/>
-        <path class="pose-b" ${ghost} d="M176 166 L154 217"/>
-        ${arrowPath('M188 113 C203 133, 204 153, 190 170')}`;
+      return `${mat(218)}
+        ${svgHead(140, 59, 0.85)}
+        ${limb(140, 72, 140, 128)}
+        ${limb(140, 128, 95, 172)}
+        ${limb(95, 172, 64, 218)}
+        ${limb(140, 128, 182, 174)}
+        ${limb(182, 174, 222, 218)}
+        ${limb(140, 128, 106, 130)}
+        ${limb(106, 130, 74, 152)}
+        ${limb(182, 174, 184, 148, true)}
+        ${focusCircle(64, 218, 12)}
+        ${focusCircle(222, 218, 12)}
+        ${arrowPath('M184 156 C198 167, 214 177, 225 194')}`;
+
     case 'calf':
-      return `<rect x="220" y="60" width="8" height="164" rx="4" fill="var(--surface2)"/>
-        ${svgHead(134, 63, 0.85)}
-        <path ${limb} d="M134 80 L134 136 L105 218 M134 136 L171 218"/>
-        <path ${limb} d="M128 103 L220 102 M140 104 L220 138"/>
-        <path class="pose-b" ${ghost} d="M105 218 L100 207 M171 218 L176 207"/>
-        ${arrowPath('M93 214 C94 199, 101 190, 112 183')}`;
+      return `<rect x="226" y="66" width="7" height="156" rx="4" fill="var(--surface2)"/>
+        ${svgHead(143, 58, 0.85)}
+        ${limb(143, 72, 143, 132)}
+        ${limb(143, 132, 109, 184)}
+        ${limb(109, 184, 78, 218)}
+        ${limb(143, 132, 177, 184)}
+        ${limb(177, 184, 208, 218)}
+        ${limb(109, 184, 128, 184)}
+        ${limb(177, 184, 159, 184)}
+        ${focusCircle(78, 218, 12)}
+        ${focusCircle(208, 218, 12)}
+        ${arrowPath('M129 188 C141 199, 155 209, 173 217')}`;
+
     case 'bicepCurl':
-      return `${mat(224)}
-        ${svgHead(140, 58, 0.85)}
-        <path ${limb} d="M140 76 L140 134 L112 218 M140 134 L172 218"/>
-        <path ${limb} d="M124 101 L102 137 M156 101 L178 137"/>
-        <path class="pose-b" ${ghost} d="M102 137 L121 111 M178 137 L159 111"/>
-        ${arrowPath('M191 130 C199 111, 196 94, 181 82')}`;
+      return `${mat(220)}
+        ${svgHead(140, 58, 0.84)}
+        ${limb(140, 71, 140, 127)}
+        ${limb(140, 127, 104, 215)}
+        ${limb(104, 215, 78, 233)}
+        ${limb(140, 127, 176, 215)}
+        ${limb(176, 215, 202, 233)}
+        ${limb(104, 127, 78, 153, true)}
+        ${limb(78, 153, 57, 99, true)}
+        ${limb(176, 127, 202, 153, true)}
+        ${limb(202, 153, 224, 100, true)}
+        ${focusCircle(57, 99, 12)}
+        ${focusCircle(224, 100, 12)}
+        ${arrowPath('M66 153 C84 139, 96 126, 118 125')}`;
+
     case 'overheadPress':
     case 'warmup':
-      return `${mat(224)}
-        ${svgHead(140, 58, 0.85)}
-        <path ${limb} d="M140 76 L140 134 L112 218 M140 134 L172 218"/>
-        <path ${limb} d="M126 96 L94 132 M154 96 L188 132"/>
-        <path class="pose-b" ${ghost} d="M126 96 L100 62 M154 96 L180 62"/>
-        ${arrowPath('M197 135 C218 113, 217 82, 194 62')}`;
+      return `${mat(220)}
+        ${svgHead(140, 58, 0.84)}
+        ${limb(140, 71, 140, 127)}
+        ${limb(140, 127, 104, 215)}
+        ${limb(104, 215, 78, 233)}
+        ${limb(140, 127, 176, 215)}
+        ${limb(176, 215, 202, 233)}
+        ${limb(140, 127, 77, 101, true)}
+        ${limb(77, 101, 98, 55, true)}
+        ${limb(140, 127, 203, 101, true)}
+        ${limb(203, 101, 226, 55, true)}
+        ${focusCircle(98, 55, 12)}
+        ${focusCircle(226, 55, 12)}
+        ${arrowPath('M203 101 C225 82, 230 58, 226 45')}`;
+
     case 'wallAngel':
     case 'chestOpen':
-      return `<rect x="62" y="44" width="156" height="184" rx="10" fill="var(--surface2)" opacity="0.45"/>
-        ${svgHead(140, 65, 0.85)}
-        <path ${limb} d="M140 82 L140 142 L113 218 M140 142 L168 218"/>
-        <path ${limb} d="M126 101 L95 78 M154 101 L185 78"/>
-        <path class="pose-b" ${ghost} d="M126 101 L92 132 M154 101 L188 132"/>
-        ${arrowPath('M97 139 C82 116, 83 91, 100 70')}
-        ${arrowPath('M183 139 C199 116, 198 91, 180 70')}`;
+      return `<rect x="62" y="40" width="156" height="188" rx="10" fill="var(--surface2)" opacity="0.45"/>
+        ${svgHead(140, 62, 0.85)}
+        ${limb(140, 75, 140, 131)}
+        ${limb(140, 131, 140, 210)}
+        ${limb(140, 131, 102, 208, false, 10, 'var(--text-secondary)')}
+        ${limb(140, 131, 178, 208, false, 10, 'var(--text-secondary)')}
+        ${limb(102, 208, 90, 210, true, 9)}
+        ${limb(178, 208, 190, 210, true, 9)}
+        ${limb(140, 131, 102, 88, true)}
+        ${limb(102, 88, 92, 58, true)}
+        ${limb(140, 131, 178, 88, true)}
+        ${limb(178, 88, 188, 58, true)}
+        ${focusCircle(92, 58, 11)}
+        ${focusCircle(188, 58, 11)}
+        ${arrowPath('M115 88 C101 103, 96 120, 88 135')}
+        ${arrowPath('M165 88 C179 103, 184 120, 192 135')}`;
+
     case 'neck':
     case 'shoulder':
-    case 'sideBend':
     case 'wrist':
-      return `${mat(224)}
-        ${svgHead(140, 62, 0.9)}
-        <path ${limb} d="M140 82 L140 142 L113 218 M140 142 L168 218"/>
-        <path ${limb} d="M126 103 L93 132 M154 103 L186 132"/>
-        <path class="pose-b" ${ghost} d="M140 82 C118 92, 111 110, 109 128"/>
-        ${arrowPath('M183 74 C202 90, 201 116, 181 132')}`;
+      return `${mat(220)}
+        ${svgHead(140, 66, 0.88)}
+        ${limb(140, 79, 140, 132)}
+        ${limb(140, 132, 110, 206)}
+        ${limb(110, 206, 84, 226)}
+        ${limb(140, 132, 172, 206)}
+        ${limb(172, 206, 198, 226)}
+        ${limb(140, 79, 170, 68, true, 8)}
+        ${limb(170, 68, 200, 100, true, 8)}
+        ${limb(140, 79, 110, 94, true, 8)}
+        ${focusCircle(200, 100, 11)}
+        ${arrowPath('M144 70 C165 76, 182 88, 196 99')}`;
+
+    case 'sideBend':
+      return `${mat(220)}
+        ${svgHead(140, 64, 0.88)}
+        ${limb(140, 77, 140, 132)}
+        ${limb(140, 132, 74, 180)}
+        ${limb(74, 180, 80, 226)}
+        ${limb(140, 132, 186, 178)}
+        ${limb(186, 178, 184, 226)}
+        ${limb(140, 132, 170, 92, true)}
+        ${limb(170, 92, 205, 104, true)}
+        ${focusCircle(170, 92, 12)}
+        ${arrowPath('M170 132 C179 116, 193 110, 205 104')}`;
+
     case 'hamstring':
-      return `${mat(224)}
-        ${svgHead(130, 78, 0.85)}
-        <path ${limb} d="M130 95 L112 145 L82 218"/>
-        <path ${limb} d="M112 145 L192 218 M120 118 L84 160 M124 119 L168 160"/>
-        ${arrowPath('M143 112 C125 139, 110 169, 94 207')}`;
+      return `${mat(220)}
+        ${svgHead(130, 72, 0.82)}
+        ${limb(130, 84, 130, 140)}
+        ${limb(130, 140, 110, 195)}
+        ${limb(110, 195, 84, 222)}
+        ${limb(130, 140, 185, 195)}
+        ${limb(185, 195, 214, 220)}
+        ${limb(130, 140, 96, 117, true)}
+        ${limb(130, 140, 166, 117, true)}
+        ${focusCircle(84, 222, 12)}
+        ${focusCircle(214, 220, 12)}
+        ${arrowPath('M96 117 C112 132, 124 148, 130 167')}`;
+
     case 'butterfly':
-      return `${mat(224)}
-        ${svgHead(140, 77, 0.85)}
-        <path ${limb} d="M140 94 L140 145"/>
-        <path ${limb} d="M140 145 L95 196 L135 218 M140 145 L186 196 L146 218"/>
-        <path ${limb} d="M125 118 L100 151 M155 118 L181 151"/>
-        ${arrowPath('M92 181 C82 197, 82 210, 94 220')}
-        ${arrowPath('M188 181 C198 197, 198 210, 186 220')}`;
+      return `${mat(220)}
+        ${svgHead(140, 72, 0.84)}
+        ${limb(140, 85, 140, 144)}
+        ${limb(140, 144, 108, 198)}
+        ${limb(108, 198, 140, 218)}
+        ${limb(140, 144, 172, 198)}
+        ${limb(172, 198, 140, 218)}
+        ${limb(108, 170, 70, 184, true)}
+        ${limb(172, 170, 210, 184, true)}
+        ${limb(108, 170, 70, 208, true)}
+        ${limb(172, 170, 210, 208, true)}
+        ${focusCircle(70, 208, 10)}
+        ${focusCircle(210, 208, 10)}
+        ${arrowPath('M108 170 C88 168, 68 178, 72 192')}`;
+
     case 'kneeHug':
     case 'supineTwist':
       return `${mat(220)}
-        ${svgHead(75, 176, 0.82)}
-        <path ${limb} d="M90 182 L134 176 L178 184"/>
-        <path ${limb} d="M132 176 L160 150 L190 170 M132 176 L158 204 L198 214"/>
-        <path ${limb} d="M112 177 L156 154 M116 180 L158 202"/>
-        ${arrowPath('M185 155 C207 171, 211 195, 197 212')}`;
+        ${svgHead(70, 160, 0.82)}
+        ${limb(70, 173, 124, 172)}
+        ${limb(124, 172, 178, 178)}
+        ${limb(178, 178, 208, 182)}
+        ${limb(124, 172, 156, 146)}
+        ${limb(156, 146, 190, 170)}
+        ${limb(124, 172, 148, 203)}
+        ${limb(148, 203, 178, 214)}
+        ${limb(70, 173, 110, 188, true)}
+        ${limb(70, 173, 92, 213, true)}
+        ${limb(178, 178, 206, 188, true)}
+        ${focusCircle(92, 213, 10)}
+        ${focusCircle(190, 170, 10)}
+        ${arrowPath('M148 146 C165 152, 178 160, 188 169')}`;
+
     case 'childPose':
     case 'pigeon':
       return `${mat(220)}
-        ${svgHead(184, 174, 0.78)}
-        <path ${limb} d="M86 196 L132 178 L184 184"/>
-        <path ${limb} d="M118 187 L82 218 M132 178 L166 218"/>
-        <path ${limb} d="M176 184 L220 190"/>
-        ${arrowPath('M139 164 C119 163, 101 171, 86 190')}`;
+        ${svgHead(190, 160, 0.78)}
+        ${limb(190, 173, 142, 178)}
+        ${limb(142, 178, 92, 208)}
+        ${limb(142, 178, 90, 216)}
+        ${limb(142, 178, 192, 208)}
+        ${limb(142, 178, 206, 214)}
+        ${limb(142, 173, 114, 154, true)}
+        ${limb(114, 154, 79, 176, true)}
+        ${focusCircle(90, 216, 11)}
+        ${arrowPath('M141 156 C118 163, 96 177, 86 191')}`;
+
     case 'bookOpen':
     case 'threadNeedle':
     case 'rotation':
     case 'thoracicExtension':
       return `${mat(220)}
-        ${svgHead(140, 82, 0.85)}
-        <path ${limb} d="M140 100 L140 154 L105 218 M140 154 L176 218"/>
-        <path ${limb} d="M125 123 L92 150 M155 123 L187 150"/>
-        <path class="pose-b" ${ghost} d="M140 112 C170 102, 192 116, 207 141"/>
-        ${arrowPath('M185 91 C215 107, 222 142, 200 165')}`;
+        ${svgHead(140, 72, 0.86)}
+        ${limb(140, 85, 140, 140)}
+        ${limb(140, 140, 102, 214)}
+        ${limb(102, 214, 138, 218)}
+        ${limb(140, 140, 178, 214)}
+        ${limb(178, 214, 212, 218)}
+        ${limb(102, 140, 68, 154)}
+        ${limb(178, 140, 210, 156, true)}
+        ${limb(178, 140, 206, 114, true)}
+        ${focusCircle(206, 114, 11)}
+        ${arrowPath('M140 118 C140 130, 145 140, 150 152')}`;
+
     default:
-      return `${mat(224)}
+      return `${mat(220)}
         ${svgHead(140, 58, 0.85)}
-        <path ${limb} d="M140 76 L140 134 L112 218 M140 134 L172 218"/>
-        <path ${limb} d="M126 100 L96 132 M154 100 L184 132"/>
-        ${arrowPath('M194 132 C214 111, 214 86, 194 66')}`;
+        ${limb(140, 71, 140, 127)}
+        ${limb(140, 127, 104, 218)}
+        ${limb(140, 127, 176, 218)}
+        ${limb(104, 127, 80, 170)}
+        ${limb(176, 127, 200, 170)}
+        ${arrowPath('M146 127 C163 124, 179 129, 196 136')}`;
   }
 }
 
