@@ -745,51 +745,97 @@ const COURSE_CATEGORIES = {"core":{"label":"복부 회복","icon":"🌸"},"back"
 // =============================================
 // 로컬 운동 일러스트
 // =============================================
+const VISUAL_ICON_LIBRARY = {
+  warmup: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v24%27/><path d=%27M50 31l-16 14%27/><path d=%27M50 31l12-10%27/><path d=%27M50 47l-10 22%27/><path d=%27M50 47l10 22%27/></svg>',
+  breathing: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><path d=%27M27 34c0-12 10-22 23-22s23 10 23 22%27/><path d=%27M34 50v16%27/><path d=%27M50 34c-12 0-12 22 0 22s12-22 0-22%27/><path d=%27M50 66c-8 0-8 16 0 16s8-16 0-16%27/><circle cx=%2750%27 cy=%2720%27 r=%278%27 fill=%27%23ffffff%27/></svg>',
+  strength: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2720%27 cy=%2752%27 r=%2710%27/><circle cx=%2780%27 cy=%2752%27 r=%2710%27/><rect x=%2730%27 y=%2742%27 width=%2740%27 height=%2720%27 rx=%2710%27 ry=%2710%27/><path d=%27M20 52H30M70 52H80%27/></svg>',
+  core: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v18%27/><path d=%27M50 23l-16 22%27/><path d=%27M50 23l16 22%27/><path d=%27M50 41l-14 24%27/><path d=%27M50 41l14 24%27/></svg>',
+  lower: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v10%27/><path d=%27M50 33l-16 18%27/><path d=%27M50 33l16 18%27/><path d=%27M50 51v16%27/><path d=%27M50 51l-14 16%27/><path d=%27M50 51l14 16%27/></svg>',
+  stretch: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v12%27/><path d=%27M50 31l-14 8M50 31l14 8%27/><path d=%27M50 39l-16 18M50 39l16 18%27/><path d=%27M50 57c-12 6-12 22 0 22s12-16 0-22%27/><path d=%27M42 79c-6 8-6 14 0 16h16c6-2 6-8 0-16%27/></svg>',
+};
+
 const VISUAL_RULES = [
-  { keys: ['브릿지 + 케겔', '싱글 레그 브릿지', '힙 쓰러스트', '브릿지'], pose: 'bridge', label: '브릿지', cue: '발로 밀고 엉덩이를 천천히 올려요' },
-  { keys: ['데드 벅', '누워서 행진', '발뒤꿈치 슬라이드'], pose: 'deadbug', label: '누워서 코어', cue: '허리가 뜨지 않게 천천히 교대해요' },
-  { keys: ['골반 기울이기', '배꼽 살짝', '누워서 배 수축'], pose: 'pelvicTilt', label: '골반 기울이기', cue: '숨을 내쉬며 허리를 바닥에 가깝게' },
-  { keys: ['케겔', '골반저근', '호흡 연결 케겔', '빠른 케겔'], pose: 'pelvicBreath', label: '골반저근', cue: '내쉬며 조이고 들이쉬며 부드럽게 풀어요' },
-  { keys: ['나비 자세'], pose: 'butterfly', label: '골반 이완', cue: '발바닥을 모으고 무릎을 편하게 내려요' },
-  { keys: ['복식 호흡', '횡격막', '늑간 호흡', '깊은 호흡', '명상', '시체 자세'], pose: 'breathing', label: '호흡', cue: '갈비뼈와 배가 편하게 오가게 해요' },
-  { keys: ['고양이-소', '고양이'], pose: 'catCow', label: '고양이-소', cue: '등을 둥글게 말고 천천히 펴요' },
-  { keys: ['버드독'], pose: 'birdDog', label: '버드독', cue: '팔과 반대쪽 다리를 길게 뻗어요' },
-  { keys: ['베어 크롤'], pose: 'bearHold', label: '베어 홀드', cue: '무릎을 살짝 띄우고 등은 평평하게' },
-  { keys: ['마운틴 클라이머'], pose: 'mountain', label: '마운틴 클라이머', cue: '플랭크에서 무릎을 천천히 당겨요' },
-  { keys: ['플랭크 탭'], pose: 'plankTap', label: '플랭크 탭', cue: '골반 흔들림 없이 어깨를 번갈아 터치' },
-  { keys: ['사이드 플랭크'], pose: 'sidePlank', label: '사이드 플랭크', cue: '무릎을 대도 좋고 골반을 들어요' },
-  { keys: ['플랭크'], pose: 'plank', label: '플랭크', cue: '어깨부터 엉덩이까지 일직선 유지' },
-  { keys: ['슈퍼맨', 'I-Y-T'], pose: 'superman', label: '등 강화', cue: '팔다리를 조금만 들고 목은 길게' },
-  { keys: ['클램쉘', '사이드 레그'], pose: 'sideLeg', label: '옆으로 다리', cue: '골반은 고정하고 위쪽 다리만 움직여요' },
-  { keys: ['벽 푸시업'], pose: 'wallPushup', label: '벽 푸시업', cue: '몸을 일직선으로 두고 벽을 밀어요' },
-  { keys: ['푸시업'], pose: 'pushup', label: '푸시업', cue: '무릎을 대도 좋고 몸통은 단단하게' },
-  { keys: ['트라이셉 딥'], pose: 'chairDip', label: '의자 딥', cue: '어깨를 낮추고 팔꿈치를 뒤로 접어요' },
-  { keys: ['스쿼트', '와이드 스쿼트'], pose: 'squat', label: '스쿼트', cue: '의자에 앉듯이 엉덩이를 뒤로 보내요' },
-  { keys: ['런지', '고관절 스트레칭'], pose: 'lunge', label: '런지', cue: '앞무릎은 발끝 방향, 상체는 길게' },
-  { keys: ['까치발', '종아리'], pose: 'calf', label: '종아리', cue: '벽을 잡고 발뒤꿈치를 천천히 올려요' },
-  { keys: ['점핑잭', '제자리 걷기', '제자리 행진', '워밍업', '전신 기지개'], pose: 'warmup', label: '가벼운 워밍업', cue: '팔을 크게 쓰고 가볍게 움직여요' },
-  { keys: ['오버헤드 프레스'], pose: 'overheadPress', label: '물병 프레스', cue: '갈비뼈가 들리지 않게 머리 위로 밀어요' },
-  { keys: ['이두 컬'], pose: 'bicepCurl', label: '물병 컬', cue: '팔꿈치를 옆구리에 두고 천천히 굽혀요' },
-  { keys: ['벽 천사'], pose: 'wallAngel', label: '벽 천사', cue: '등을 벽에 기대고 팔을 위아래로' },
-  { keys: ['턱 당기기', '목 좌우', '목 스트레칭'], pose: 'neck', label: '목 이완', cue: '턱을 살짝 당기고 목을 길게 늘려요' },
-  { keys: ['어깨 돌리기', '어깨 으쓱', '팔 돌리기', '어깨 스트레칭', '어깨 & 목'], pose: 'shoulder', label: '어깨 이완', cue: '어깨를 귀에서 멀리, 천천히 돌려요' },
-  { keys: ['가슴 열기', '가슴 스트레칭', '팔 교차'], pose: 'chestOpen', label: '가슴 열기', cue: '가슴을 부드럽게 열고 어깨 힘을 빼요' },
-  { keys: ['골반 원'], pose: 'sideBend', label: '골반 원', cue: '상체는 편하게 두고 골반으로 원을 그려요' },
-  { keys: ['옆구리', '팔 벌려', '허리 돌리기'], pose: 'sideBend', label: '옆구리', cue: '한쪽 팔을 길게 뻗고 옆으로 기울여요' },
-  { keys: ['허벅지 뒤쪽'], pose: 'hamstring', label: '햄스트링', cue: '무릎을 잠그지 말고 허벅지 뒤를 늘려요' },
-  { keys: ['허벅지 안쪽', '나비 자세'], pose: 'butterfly', label: '골반 이완', cue: '발바닥을 모으고 무릎을 편하게 내려요' },
-  { keys: ['무릎 안기'], pose: 'kneeHug', label: '무릎 안기', cue: '무릎을 가슴 쪽으로 편하게 안아요' },
-  { keys: ['다리 교차 비틀기', '허리 비틀기'], pose: 'supineTwist', label: '누워서 비틀기', cue: '무릎은 옆으로, 어깨는 바닥에 편하게' },
-  { keys: ['아기 자세', '차일드 포즈', '쿨다운', '스트레칭 마무리', '전신 스트레칭'], pose: 'childPose', label: '편안한 스트레칭', cue: '엉덩이를 뒤로 보내고 몸을 길게 이완해요' },
-  { keys: ['비둘기'], pose: 'pigeon', label: '비둘기 자세', cue: '골반을 정면으로 두고 엉덩이를 이완해요' },
-  { keys: ['옆으로 누워 책'], pose: 'bookOpen', label: '책 펼치기', cue: '위쪽 팔을 천천히 뒤로 열어요' },
-  { keys: ['실 꿰기', '네발 자세 흉곽'], pose: 'threadNeedle', label: '흉곽 회전', cue: '한 팔을 겨드랑이 밑으로 통과시켜요' },
-  { keys: ['반무릎 흉곽', '앉아서 흉곽', '상체 비틀기', '흉곽 회전'], pose: 'rotation', label: '상체 회전', cue: '골반은 고정하고 가슴만 천천히 돌려요' },
-  { keys: ['흉추 신전'], pose: 'thoracicExtension', label: '흉추 신전', cue: '등 위쪽을 수건 위에서 부드럽게 열어요' },
-  { keys: ['손목 돌리기'], pose: 'wrist', label: '손목 이완', cue: '손목을 작게 천천히 돌려요' },
+  {
+    keys: ['점핑잭', '제자리걷기', '제자리행진', '전신기지개', '가벼운전신워밍업', '가벼운전신', '한발서기', '워밍업'],
+    pose: VISUAL_ICON_LIBRARY.warmup,
+    label: '가벼운 워밍업',
+    cue: '팔을 크게 쓰고 천천히 시작해요',
+  },
+  {
+    keys: ['복식호흡', '횡격막', '늑간호흡', '깊은호흡', '명상', '감사호흡', '시체', '사바사나', '호흡마무리'],
+    pose: VISUAL_ICON_LIBRARY.breathing,
+    label: '호흡 정렬',
+    cue: '배와 갈비뼈가 편하게 움직이게 하세요',
+  },
+  {
+    keys: ['브릿지', '데드벅', '베어크롤', '싱글레그브릿지', '데드벅변형', '발뒤꿈치슬라이드', '누워서행진'],
+    pose: VISUAL_ICON_LIBRARY.core,
+    label: '코어 안정',
+    cue: '허리가 뜨지 않게 골반 고정에 집중해요',
+  },
+  {
+    keys: ['플랭크', '사이드플랭크', '플랭크탭', '버드독', '마운틴클라이머', '슈퍼맨', 'IYT', '버드독3초유지'],
+    pose: VISUAL_ICON_LIBRARY.core,
+    label: '코어 강화',
+    cue: '복압을 지키고 동작만 천천히 마무리해요',
+  },
+  {
+    keys: ['케겔', '골반저근', '호흡연결케겔', '빠른케겔', '골반기울이기', '배꼽살짝', '누워서배수축'],
+    pose: VISUAL_ICON_LIBRARY.breathing,
+    label: '케겔/골반저근',
+    cue: '허리보다 배와 회음부의 리듬을 먼저 잡아요',
+  },
+  {
+    keys: ['스쿼트', '와이드스쿼트', '리버스런지', '런지', '워킹런지', '힙쓰러스트', '고관절스트레칭'],
+    pose: VISUAL_ICON_LIBRARY.lower,
+    label: '하체 움직임',
+    cue: '발끝 방향으로 체중을 분산해 안정적으로',
+  },
+  {
+    keys: ['클램쉘', '사이드레그', '사이드레그레이즈', '허벅지뒤쪽', '허벅지안쪽', '종아리', '까치발'],
+    pose: VISUAL_ICON_LIBRARY.lower,
+    label: '다리 안정',
+    cue: '반복은 천천히, 범위를 무리 없이',
+  },
+  {
+    keys: ['손목돌리기'],
+    pose: VISUAL_ICON_LIBRARY.stretch,
+    label: '손목 이완',
+    cue: '손목 관절부터 부드럽게 푼다',
+  },
+  {
+    keys: ['벽푸시업', '푸시업', '트라이셉딥', '오버헤드프레스', '이두컬', '팔교차', '팔돌리기', '어깨돌리기', '어깨', '어깨으쓱', '팔벌려위로뻗기'],
+    pose: VISUAL_ICON_LIBRARY.strength,
+    label: '상체 근력',
+    cue: '어깨는 내리고 가슴을 편안히 세워요',
+  },
+  {
+    keys: ['고양이-소', '고양이', '가슴열기', '가슴스트레칭', '목스트레칭', '목좌우', '턱당기기', '옆구리', '허리돌리기', '가슴열기스트레칭', '옆으로누워책', '실꿰기', '네발자세흉곽', '반무릎흉곽', '앉아서흉곽', '상체비틀기', '흉추신전', '흉곽회전', '고관절스트레칭', '골반원', '골반원그리기', '어깨스트레칭', '팔교차'],
+    pose: VISUAL_ICON_LIBRARY.stretch,
+    label: '자세 정렬',
+    cue: '목-등-엉덩이 라인을 길게 펴주세요',
+  },
+  {
+    keys: ['아기자세', '차일드포즈', '나비자세', '무릎안기', '다리교차비틀기', '허리비틀기', '비둘기', '아기자세마무리', '전신스트레칭', '전신스트레칭마무리', '하체스트레칭마무리', '전신쿨다운', '명상호흡마무리', '시체자세명상', '아기자세'],
+    pose: VISUAL_ICON_LIBRARY.breathing,
+    label: '회복 스트레칭',
+    cue: '긴장을 풀고 호흡으로 마무리해요',
+  },
+  {
+    keys: ['벽천사'],
+    pose: VISUAL_ICON_LIBRARY.stretch,
+    label: '등/흉곽 열기',
+    cue: '등을 벽에 눕혀 천천히 길게 밀어요',
+  },
+  {
+    keys: ['시체', '사바사나'],
+    pose: VISUAL_ICON_LIBRARY.breathing,
+    label: '시체 이완',
+    cue: '눈을 감고 30초 이상 천천히 호흡해요',
+  },
 ];
 
-const DEFAULT_VISUAL = { pose: 'warmup', label: '천천히 움직이기', cue: '통증 없는 범위에서 부드럽게 진행해요' };
+const DEFAULT_VISUAL = { pose: VISUAL_ICON_LIBRARY.stretch, label: '천천히 움직이기', cue: '통증 없는 범위에서 부드럽게 진행해요' };
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({
@@ -804,7 +850,8 @@ function escapeHtml(value) {
 function getExerciseVisualSpec(name) {
   const normalize = (value) => String(value)
     .replace(/\s+/g, '')
-    .replace(/[()]/g, '')
+    .replace(/[()&+]/g, '')
+    .replace(/-/g, '')
     .toLowerCase();
 
   const compactName = normalize(name);
@@ -816,7 +863,7 @@ function getExerciseVisualSpec(name) {
       return rule;
     }
   }
-  return DEFAULT_VISUAL;
+  return { ...DEFAULT_VISUAL };
 }
 
 function svgHead(x, y, s = 1) {
@@ -851,6 +898,20 @@ function joint(x, y, r = 4.8) {
 }
 
 function drawPose(pose) {
+  if (typeof pose === 'string' && (pose.startsWith('https://') || pose.startsWith('data:image/svg+xml'))) {
+    return `
+      <g>
+        <rect x="18" y="24" width="244" height="212" rx="18" fill="var(--surface2)" opacity="0.38"/>
+        <image
+          x="31"
+          y="34"
+          width="218"
+          height="184"
+          href="${pose}"
+          preserveAspectRatio="xMidYMid meet"
+        />
+      </g>`;
+  }
   const wide = 'fill="none" stroke="var(--text)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"';
   switch (pose) {
     case 'breathing':
