@@ -617,6 +617,18 @@ body {
     width: 100%;
     height: 100%;
     display: block;
+    object-fit: cover;
+  }
+
+  .exercise-svg-fallback {
+    width: 100%;
+    height: 100%;
+  }
+
+  .exercise-svg-fallback svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   .exercise-visual .move-arrow,
@@ -655,12 +667,36 @@ body {
   margin: 0 20px 24px;
   background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 0;
   cursor: pointer;
   border: 2px solid var(--accent-dim);
   transition: transform 0.1s;
+  overflow: hidden;
 }
 .today-card:active { transform: scale(0.98); }
+
+.today-card-visual {
+  padding: 14px;
+  background: linear-gradient(160deg, rgba(198, 255, 0, 0.12) 0%, var(--surface) 56%, var(--surface2) 100%);
+}
+
+.today-card-visual .ex-thumb {
+  width: 112px;
+  height: 112px;
+  border-radius: 16px;
+  margin: 0 auto;
+  background: transparent;
+}
+
+.today-card-visual .exercise-visual {
+  width: 112px;
+  height: 112px;
+}
+
+.today-card-content {
+  padding: 16px 18px 18px;
+}
+
 .today-card-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
 .today-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
 .today-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
@@ -681,7 +717,30 @@ body {
   transition: transform 0.1s;
 }
 .course-card:active { transform: scale(0.97); }
-.course-card-icon { font-size: 28px; margin-bottom: 8px; }
+.course-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.course-card-icon .ex-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: transparent;
+}
+
+.course-card-icon .exercise-visual {
+  width: 44px;
+  height: 44px;
+}
+
 .course-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
 .course-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .course-card-meta { display: flex; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--text-secondary); font-weight: 600; }
@@ -703,6 +762,318 @@ body {
   cursor: pointer;
 }
 .btn-browse-courses:active { opacity: 0.7; }
+
+/* ========== Home Header (Streak + Weekly) ========== */
+.home-stats-header {
+  margin: 0 20px 16px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.home-stats-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 72px;
+}
+.home-stats-streak-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.home-stats-streak-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+}
+.home-stats-week {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.home-stats-week-title {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.home-stats-week-dots {
+  display: flex;
+  gap: 6px;
+}
+.week-dot {
+  flex: 1;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.week-dot.done {
+  background: var(--success-dim);
+  color: var(--success);
+}
+.week-dot.today {
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+/* Today done badge on today-card */
+.today-done-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--success);
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  z-index: 2;
+}
+.today-card { position: relative; }
+.today-card.done { opacity: 0.78; }
+.today-card.done .today-card-label::after {
+  content: ' · ✓ 완료';
+  color: var(--success);
+}
+
+/* Settings toggle (sound) in header */
+.home-top-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.sound-toggle {
+  background: var(--surface);
+  border: none;
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.sound-toggle:active { transform: scale(0.96); }
+
+.courses-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.courses-header > div:first-child { flex: 1; min-width: 0; }
+
+/* ========== Condition Picker Overlay ========== */
+.condition-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 300;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.condition-overlay.show { display: flex; }
+.condition-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.condition-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  text-align: center;
+  line-height: 1.5;
+}
+.condition-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+}
+.condition-opt {
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.condition-opt:active { transform: scale(0.98); }
+.condition-opt-emoji { font-size: 32px; flex-shrink: 0; }
+.condition-opt-body { flex: 1; text-align: left; }
+.condition-opt-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.condition-opt-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ========== Resume Modal ========== */
+.resume-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 400;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.resume-overlay.show { display: flex; }
+.resume-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+.resume-icon { font-size: 40px; margin-bottom: 12px; }
+.resume-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.resume-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.resume-actions {
+  display: flex;
+  gap: 10px;
+}
+.resume-actions .btn-main {
+  font-size: 15px;
+  padding: 14px;
+}
+.btn-resume {
+  background: var(--accent);
+  color: #000;
+  flex: 1;
+}
+.btn-discard {
+  background: var(--surface2);
+  color: var(--text-secondary);
+  flex: 0 0 100px;
+}
+
+/* ========== Sticky Exercise Description ========== */
+.exercise-desc-sticky {
+  margin: 16px 20px 0;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.exercise-desc-sticky .desc-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ========== Reps Counter ========== */
+.reps-counter-wrap {
+  margin: 8px 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.reps-counter-btn {
+  flex: 1;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.08s;
+}
+.reps-counter-btn:active { transform: scale(0.96); background: var(--accent); color: #000; }
+.reps-counter-display {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+  text-align: center;
+}
+.reps-counter-display .reps-done {
+  color: var(--accent);
+}
+.reps-counter-display .reps-total {
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+/* ========== Tap-to-pause feedback ========== */
+.timer-ring-container {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.timer-ring-container.tapped {
+  animation: tapFlash 0.25s ease;
+}
+@keyframes tapFlash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.tap-hint {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.4px;
+  opacity: 0.6;
+  pointer-events: none;
+}
 
 </style>
 </head>
@@ -732,6 +1103,48 @@ body {
   <button class="rest-skip-btn" onclick="skipRest()">건너뛰기</button>
 </div>
 
+<!-- Condition Picker Overlay -->
+<div class="condition-overlay" id="conditionOverlay">
+  <div class="condition-title">오늘 컨디션 어때요?</div>
+  <div class="condition-subtitle">몸 상태에 맞춰 운동을 살짝 조절해드릴게요</div>
+  <div class="condition-options">
+    <button class="condition-opt" data-cond="tired" onclick="selectCondition('tired')">
+      <span class="condition-opt-emoji">😴</span>
+      <div class="condition-opt-body">
+        <div class="condition-opt-name">많이 피곤해요</div>
+        <div class="condition-opt-desc">운동 개수와 시간을 줄여서 가볍게</div>
+      </div>
+    </button>
+    <button class="condition-opt" data-cond="normal" onclick="selectCondition('normal')">
+      <span class="condition-opt-emoji">😌</span>
+      <div class="condition-opt-body">
+        <div class="condition-opt-name">보통이에요</div>
+        <div class="condition-opt-desc">오늘 프로그램 그대로 진행</div>
+      </div>
+    </button>
+    <button class="condition-opt" data-cond="strong" onclick="selectCondition('strong')">
+      <span class="condition-opt-emoji">💪</span>
+      <div class="condition-opt-body">
+        <div class="condition-opt-name">컨디션 좋아요</div>
+        <div class="condition-opt-desc">유지 시간을 살짝 늘려서 도전</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- Resume Modal -->
+<div class="resume-overlay" id="resumeOverlay">
+  <div class="resume-card">
+    <div class="resume-icon">⏸</div>
+    <div class="resume-title">이어서 할까요?</div>
+    <div class="resume-desc" id="resumeDesc">진행 중이던 운동이 있어요</div>
+    <div class="resume-actions">
+      <button class="btn-main btn-discard" onclick="discardResume()">새로 시작</button>
+      <button class="btn-main btn-resume" onclick="applyResume()">이어하기</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // =============================================
 // Program Data
@@ -742,100 +1155,105 @@ const PROGRAMS = {"1": {"1": {"title": "부드러운 전신 스트레칭", "desc
 const COURSES = [{"id":"core_1","title":"나를 위한 복부 첫 걸음","category":"core","icon":"🌸","level":1,"duration_minutes":15,"description":"복직근 분리에 안전한 부드러운 복부 운동. 호흡과 함께 깊은 코어를 깨워요","exercises":[{"name":"360도 늑간 호흡","duration_seconds":90,"sets":1,"reps":8,"description":"편하게 누워서 코로 들이쉴 때 갈비뼈가 옆으로 펼쳐지는 걸 느끼세요. 4초 들이쉬고, 6초 내쉬기","rest_seconds":10},{"name":"배꼽 살짝 당기기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고, 숨을 내쉬면서 배꼽을 등 쪽으로 부드럽게 당겨주세요. 5초 유지","rest_seconds":10},{"name":"발뒤꿈치 슬라이드","duration_seconds":90,"sets":2,"reps":8,"description":"누워서 무릎 세우고, 한 발을 바닥에 대고 천천히 밀어 펴세요. 배에 힘 유지! 좌우 교대","rest_seconds":10},{"name":"누워서 행진","duration_seconds":90,"sets":2,"reps":10,"description":"누워서 무릎 90도, 한 다리씩 내쉬면서 발을 바닥 쪽으로 내렸다 올리기. 좌우 교대","rest_seconds":10},{"name":"골반 기울이기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고, 골반을 살짝 위로 기울였다가 돌아와요. 허리가 바닥에 닿는 느낌","rest_seconds":10},{"name":"복식 호흡 마무리","duration_seconds":90,"sets":1,"reps":5,"description":"편하게 누워서 배에 손을 올리고 깊은 호흡. 오늘도 잘했어요!","rest_seconds":0}]},{"id":"core_2","title":"조금씩 깨어나는 코어","category":"core","icon":"🌿","level":2,"duration_minutes":17,"description":"배 근육이 서서히 힘을 찾아가요. 안전하게 한 단계 올라가볼까요?","exercises":[{"name":"고양이-소 자세 워밍업","duration_seconds":60,"sets":1,"reps":8,"description":"네발 자세에서 호흡에 맞춰 등을 둥글게, 오목하게. 몸을 깨워줘요","rest_seconds":10},{"name":"데드 벅","duration_seconds":90,"sets":3,"reps":8,"description":"누워서 양팔 천장, 무릎 90도. 내쉬면서 오른팔-왼다리를 동시에 내려요. 좌우 교대","rest_seconds":15},{"name":"버드독","duration_seconds":90,"sets":3,"reps":8,"description":"네발 자세에서 오른팔-왼다리를 뻗고 3초 유지. 배가 처지지 않게! 좌우 교대","rest_seconds":15},{"name":"브릿지","duration_seconds":90,"sets":3,"reps":10,"description":"누워서 무릎 세우고 엉덩이를 천천히 들어올려요. 위에서 3초 유지","rest_seconds":15},{"name":"클램쉘","duration_seconds":60,"sets":2,"reps":12,"description":"옆으로 누워서 무릎을 조개처럼 열었다 닫기. 골반이 움직이지 않게 주의! 좌우","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"차일드 포즈에서 깊게 호흡하며 편하게 쉬어요","rest_seconds":0}]},{"id":"core_3","title":"단단해지는 나의 중심","category":"core","icon":"💪","level":3,"duration_minutes":18,"description":"코어가 충분히 깨어났다면! 한 단계 더 강한 동작으로 중심을 잡아요","exercises":[{"name":"제자리 행진 워밍업","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 크게 흔들면서 가볍게 1분 걷기. 몸을 데워줘요","rest_seconds":10},{"name":"플랭크","duration_seconds":90,"sets":3,"reps":null,"description":"무릎 대고 30초 또는 풀 플랭크 20초. 엉덩이가 올라가지 않게 주의","rest_seconds":15},{"name":"사이드 플랭크","duration_seconds":60,"sets":2,"reps":null,"description":"무릎 대고 20초 유지. 골반이 떨어지지 않게! 좌우","rest_seconds":15},{"name":"싱글 레그 브릿지","duration_seconds":90,"sets":2,"reps":8,"description":"한 다리를 들고 브릿지. 골반이 기울지 않도록 코어에 집중! 좌우","rest_seconds":15},{"name":"베어 크롤 홀드","duration_seconds":60,"sets":3,"reps":null,"description":"네발 자세에서 무릎을 바닥에서 2cm만 띄우고 20초 유지. 깊은 코어에 불이 켜져요","rest_seconds":15},{"name":"전신 스트레칭 마무리","duration_seconds":90,"sets":1,"reps":null,"description":"고양이-소 자세 + 아기 자세로 편하게 마무리","rest_seconds":0}]},{"id":"back_1","title":"수유맘을 위한 바른 자세","category":"back","icon":"🦢","level":2,"duration_minutes":16,"description":"수유와 안기로 구부정해진 자세를 바로잡아요. 어깨가 활짝 펴져요","exercises":[{"name":"턱 당기기","duration_seconds":60,"sets":2,"reps":10,"description":"서거나 앉아서 턱을 뒤로 당겨 이중턱을 만들어요. 5초 유지. 거북목 교정에 최고!","rest_seconds":10},{"name":"벽 천사","duration_seconds":90,"sets":3,"reps":10,"description":"벽에 등과 팔을 붙이고 천천히 위아래로 팔을 움직여요. 스노우 엔젤처럼!","rest_seconds":15},{"name":"I-Y-T 레이즈","duration_seconds":90,"sets":2,"reps":6,"description":"엎드려서 팔을 I자, Y자, T자 모양으로 들어올려요. 각 자세 3초 유지","rest_seconds":15},{"name":"고양이-소 자세","duration_seconds":60,"sets":1,"reps":10,"description":"네발 자세에서 호흡에 맞춰 등을 둥글게, 오목하게","rest_seconds":10},{"name":"가슴 열기 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"문틀에 팔을 대고 가슴을 앞으로 내밀어 활짝 열어요. 좌우 30초씩","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 앞으로 쭉 뻗고 깊게 호흡하며 마무리","rest_seconds":0}]},{"id":"back_2","title":"허리가 편안해지는 시간","category":"back","icon":"🌈","level":1,"duration_minutes":16,"description":"아기 안기와 수유로 뻣뻣한 허리를 부드럽게 풀어줘요","exercises":[{"name":"고양이-소 자세","duration_seconds":60,"sets":1,"reps":10,"description":"네발 자세에서 호흡에 맞춰 천천히. 허리에 부드러운 움직임을 줘요","rest_seconds":10},{"name":"골반 기울이기","duration_seconds":60,"sets":2,"reps":10,"description":"누워서 무릎 세우고 골반을 살짝 기울여요. 허리 아래 공간이 바닥에 닿는 느낌","rest_seconds":10},{"name":"브릿지","duration_seconds":90,"sets":3,"reps":10,"description":"엉덩이를 천천히 들어올리고 위에서 3초. 허리가 아닌 엉덩이 힘으로!","rest_seconds":15},{"name":"고관절 스트레칭","duration_seconds":90,"sets":1,"reps":null,"description":"반무릎 자세에서 앞으로 살짝 기울여 앞쪽 고관절을 늘려요. 좌우 40초씩","rest_seconds":10},{"name":"누워서 무릎 안기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 양 무릎을 가슴 쪽으로 안아주세요. 좌우로 살살 흔들어도 좋아요","rest_seconds":10},{"name":"누워서 다리 교차 비틀기","duration_seconds":60,"sets":1,"reps":null,"description":"누워서 한 무릎을 반대쪽으로 넘기고 시선은 반대쪽. 좌우 30초씩. 허리가 녹아요~","rest_seconds":0}]},{"id":"thoracic_1","title":"깊게 숨쉬는 흉곽 케어","category":"thoracic","icon":"🌬️","level":1,"duration_minutes":15,"description":"갈비뼈와 흉곽의 움직임을 되찾아요. 숨쉬기가 편해져요","exercises":[{"name":"360도 늑간 호흡","duration_seconds":90,"sets":1,"reps":8,"description":"앉거나 누워서 갈비뼈 양옆에 손을 대고 들이쉴 때 손이 밀려나는 걸 느끼세요","rest_seconds":10},{"name":"옆으로 누워 책 펼치기","duration_seconds":90,"sets":2,"reps":8,"description":"옆으로 누워 양팔을 앞으로 모은 뒤, 위쪽 팔을 천천히 뒤로 펼쳐요. 시선이 손을 따라가요. 좌우","rest_seconds":15},{"name":"실 꿰기 스트레칭","duration_seconds":90,"sets":2,"reps":8,"description":"네발 자세에서 한 팔을 반대쪽 겨드랑이 밑으로 통과시키며 상체를 비틀어요. 좌우","rest_seconds":15},{"name":"앉아서 흉곽 회전","duration_seconds":60,"sets":2,"reps":8,"description":"양반다리로 앉아서 양손을 어깨에 올리고 상체만 좌우로 천천히 회전","rest_seconds":10},{"name":"가슴 열기 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"양손을 등 뒤에서 깍지 끼고 가슴을 활짝 열어주세요. 30초 유지","rest_seconds":10},{"name":"깊은 호흡 마무리","duration_seconds":60,"sets":1,"reps":5,"description":"편하게 누워서 갈비뼈가 360도로 펼쳐지는 호흡 5회. 흉곽이 시원해져요!","rest_seconds":0}]},{"id":"thoracic_2","title":"가슴 활짝, 흉곽 열기","category":"thoracic","icon":"✨","level":2,"duration_minutes":17,"description":"굳어있는 흉추를 열어주는 동작들. 등 위쪽이 시원하게 펴져요","exercises":[{"name":"고양이-소 자세 워밍업","duration_seconds":60,"sets":1,"reps":10,"description":"흉추 부분에 집중! 등 위쪽이 둥글어지고 펴지는 걸 느끼세요","rest_seconds":10},{"name":"반무릎 흉곽 회전","duration_seconds":90,"sets":2,"reps":8,"description":"한 무릎을 세우고 반대쪽 무릎 꿇기. 양손을 머리 뒤에 대고 윗몸을 열린 쪽으로 회전. 좌우","rest_seconds":15},{"name":"네발 자세 흉곽 회전","duration_seconds":90,"sets":2,"reps":8,"description":"네발 자세에서 한 손을 머리 뒤에 대고 팔꿈치를 천장 쪽으로 열어요. 좌우","rest_seconds":15},{"name":"흉추 신전 (수건 이용)","duration_seconds":60,"sets":2,"reps":8,"description":"등 위쪽에 둥글게 만 수건을 대고 누워서 팔을 위로 뻗으며 등을 젖혀요","rest_seconds":15},{"name":"고관절 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"반무릎 자세에서 앞으로 기울여 고관절 앞쪽을 시원하게. 좌우 30초씩","rest_seconds":10},{"name":"아기 자세 마무리","duration_seconds":60,"sets":1,"reps":null,"description":"팔을 쭉 뻗은 차일드 포즈. 등이 편안하게 늘어나요","rest_seconds":0}]},{"id":"pelvic_1","title":"소중한 골반 건강 지킴이","category":"pelvic","icon":"🌺","level":1,"duration_minutes":16,"description":"출산 후 가장 중요한 골반저근 회복. 차근차근 힘을 되찾아요","exercises":[{"name":"호흡 연결 케겔","duration_seconds":90,"sets":3,"reps":10,"description":"내쉬면서 골반저근을 조이고, 들이쉬면서 이완. 호흡과 연결하는 게 핵심이에요","rest_seconds":15},{"name":"빠른 케겔","duration_seconds":60,"sets":2,"reps":15,"description":"빠르게 조였다 풀기를 반복! 1초 조이고 1초 이완. 지구력을 키워요","rest_seconds":15},{"name":"브릿지 + 케겔","duration_seconds":90,"sets":3,"reps":10,"description":"엉덩이 올리면서 케겔 조이기, 내려오면서 이완. 코어와 골반을 동시에!","rest_seconds":15},{"name":"클램쉘","duration_seconds":90,"sets":2,"reps":12,"description":"옆으로 누워 무릎을 조개처럼 열고 닫기. 엉덩이 옆쪽에 불이 켜져요. 좌우","rest_seconds":15},{"name":"사이드 레그 레이즈","duration_seconds":60,"sets":2,"reps":10,"description":"옆으로 누워 위쪽 다리를 천천히 올렸다 내리기. 골반 안정에 집중! 좌우","rest_seconds":10},{"name":"나비 자세 호흡","duration_seconds":60,"sets":1,"reps":null,"description":"앉아서 발바닥 모으고 깊은 호흡. 골반이 편안하게 열려요","rest_seconds":0}]},{"id":"relax_1","title":"온몸이 녹는 릴랙스 타임","category":"relax","icon":"🧘","level":1,"duration_minutes":15,"description":"하루의 피로를 녹여주는 부드러운 스트레칭과 명상이에요","exercises":[{"name":"목 스트레칭","duration_seconds":60,"sets":1,"reps":null,"description":"고개를 천천히 좌우로 기울이고, 앞뒤로 숙여주세요. 목이 시원해져요","rest_seconds":10},{"name":"어깨 돌리기","duration_seconds":60,"sets":1,"reps":null,"description":"양 어깨를 크게 앞으로 10회, 뒤로 10회 천천히 돌려주세요","rest_seconds":10},{"name":"나비 자세","duration_seconds":90,"sets":1,"reps":null,"description":"앉아서 발바닥을 모으고 무릎을 살살 위아래로. 골반이 편안해져요","rest_seconds":10},{"name":"비둘기 자세","duration_seconds":90,"sets":1,"reps":null,"description":"한 다리를 앞으로 접고 엉덩이를 천천히 내려요. 좌우 45초씩","rest_seconds":10},{"name":"아기 자세","duration_seconds":90,"sets":1,"reps":null,"description":"무릎 꿇고 이마를 바닥에. 팔을 앞으로 쭉 뻗고 깊게 호흡","rest_seconds":10},{"name":"시체 자세 명상","duration_seconds":120,"sets":1,"reps":null,"description":"눈 감고 편하게 누워서 온몸의 힘을 빼세요. 오늘 하루 수고한 나에게 감사해요","rest_seconds":0}]}];
 const COURSE_CATEGORIES = {"core":{"label":"복부 회복","icon":"🌸"},"back":{"label":"허리 & 자세","icon":"🦢"},"thoracic":{"label":"흉곽 케어","icon":"🌬️"},"pelvic":{"label":"골반 건강","icon":"🌺"},"relax":{"label":"릴랙스","icon":"🧘"}};
 
+const EXERCISE_IMAGE_ENABLED = true;
+const EXERCISE_IMAGE_ROOT = './assets/exercise-illustrations';
+const EXERCISE_IMAGE_BY_POSE = {
+  bridge: 'bridge',
+  deadbug: 'deadbug',
+  pelvicTilt: 'pelvic-tilt',
+  pelvicBreath: 'pelvic-breath',
+  butterfly: 'butterfly',
+  breathing: 'breathing',
+  catCow: 'cat-cow',
+  birdDog: 'bird-dog',
+  bearHold: 'bear-hold',
+  mountain: 'mountain',
+  plankTap: 'plank-tap',
+  sidePlank: 'side-plank',
+  plank: 'plank',
+  superman: 'superman',
+  sideLeg: 'side-leg',
+  wallPushup: 'wall-pushup',
+  pushup: 'pushup',
+  chairDip: 'chair-dip',
+  squat: 'squat',
+  lunge: 'lunge',
+  calf: 'calf',
+  warmup: 'warmup',
+  overheadPress: 'overhead-press',
+  bicepCurl: 'bicep-curl',
+  wallAngel: 'wall-angel',
+  neck: 'neck',
+  shoulder: 'shoulder',
+  chestOpen: 'chest-open',
+  sideBend: 'side-bend',
+  hamstring: 'hamstring',
+  kneeHug: 'knee-hug',
+  supineTwist: 'supine-twist',
+  childPose: 'child-pose',
+  pigeon: 'pigeon',
+  bookOpen: 'book-open',
+  threadNeedle: 'thread-needle',
+  rotation: 'rotation',
+  thoracicExtension: 'thoracic-extension',
+  wrist: 'wrist'
+};
+
+const DEFAULT_EXERCISE_IMAGE_SLUG = 'warmup';
+
 // =============================================
 // 로컬 운동 일러스트
 // =============================================
-const VISUAL_ICON_LIBRARY = {
-  warmup: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v24%27/><path d=%27M50 31l-16 14%27/><path d=%27M50 31l12-10%27/><path d=%27M50 47l-10 22%27/><path d=%27M50 47l10 22%27/></svg>',
-  breathing: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><path d=%27M27 34c0-12 10-22 23-22s23 10 23 22%27/><path d=%27M34 50v16%27/><path d=%27M50 34c-12 0-12 22 0 22s12-22 0-22%27/><path d=%27M50 66c-8 0-8 16 0 16s8-16 0-16%27/><circle cx=%2750%27 cy=%2720%27 r=%278%27 fill=%27%23ffffff%27/></svg>',
-  strength: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2720%27 cy=%2752%27 r=%2710%27/><circle cx=%2780%27 cy=%2752%27 r=%2710%27/><rect x=%2730%27 y=%2742%27 width=%2740%27 height=%2720%27 rx=%2710%27 ry=%2710%27/><path d=%27M20 52H30M70 52H80%27/></svg>',
-  core: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v18%27/><path d=%27M50 23l-16 22%27/><path d=%27M50 23l16 22%27/><path d=%27M50 41l-14 24%27/><path d=%27M50 41l14 24%27/></svg>',
-  lower: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v10%27/><path d=%27M50 33l-16 18%27/><path d=%27M50 33l16 18%27/><path d=%27M50 51v16%27/><path d=%27M50 51l-14 16%27/><path d=%27M50 51l14 16%27/></svg>',
-  stretch: 'data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27><circle cx=%2750%27 cy=%2716%27 r=%277%27 fill=%27%23ffffff%27/><path d=%27M50 23v12%27/><path d=%27M50 31l-14 8M50 31l14 8%27/><path d=%27M50 39l-16 18M50 39l16 18%27/><path d=%27M50 57c-12 6-12 22 0 22s12-16 0-22%27/><path d=%27M42 79c-6 8-6 14 0 16h16c6-2 6-8 0-16%27/></svg>',
-};
-
 const VISUAL_RULES = [
-  {
-    keys: ['점핑잭', '제자리걷기', '제자리행진', '전신기지개', '가벼운전신워밍업', '가벼운전신', '한발서기', '워밍업'],
-    pose: VISUAL_ICON_LIBRARY.warmup,
-    label: '가벼운 워밍업',
-    cue: '팔을 크게 쓰고 천천히 시작해요',
-  },
-  {
-    keys: ['복식호흡', '횡격막', '늑간호흡', '깊은호흡', '명상', '감사호흡', '시체', '사바사나', '호흡마무리'],
-    pose: VISUAL_ICON_LIBRARY.breathing,
-    label: '호흡 정렬',
-    cue: '배와 갈비뼈가 편하게 움직이게 하세요',
-  },
-  {
-    keys: ['브릿지', '데드벅', '베어크롤', '싱글레그브릿지', '데드벅변형', '발뒤꿈치슬라이드', '누워서행진'],
-    pose: VISUAL_ICON_LIBRARY.core,
-    label: '코어 안정',
-    cue: '허리가 뜨지 않게 골반 고정에 집중해요',
-  },
-  {
-    keys: ['플랭크', '사이드플랭크', '플랭크탭', '버드독', '마운틴클라이머', '슈퍼맨', 'IYT', '버드독3초유지'],
-    pose: VISUAL_ICON_LIBRARY.core,
-    label: '코어 강화',
-    cue: '복압을 지키고 동작만 천천히 마무리해요',
-  },
-  {
-    keys: ['케겔', '골반저근', '호흡연결케겔', '빠른케겔', '골반기울이기', '배꼽살짝', '누워서배수축'],
-    pose: VISUAL_ICON_LIBRARY.breathing,
-    label: '케겔/골반저근',
-    cue: '허리보다 배와 회음부의 리듬을 먼저 잡아요',
-  },
-  {
-    keys: ['스쿼트', '와이드스쿼트', '리버스런지', '런지', '워킹런지', '힙쓰러스트', '고관절스트레칭'],
-    pose: VISUAL_ICON_LIBRARY.lower,
-    label: '하체 움직임',
-    cue: '발끝 방향으로 체중을 분산해 안정적으로',
-  },
-  {
-    keys: ['클램쉘', '사이드레그', '사이드레그레이즈', '허벅지뒤쪽', '허벅지안쪽', '종아리', '까치발'],
-    pose: VISUAL_ICON_LIBRARY.lower,
-    label: '다리 안정',
-    cue: '반복은 천천히, 범위를 무리 없이',
-  },
-  {
-    keys: ['손목돌리기'],
-    pose: VISUAL_ICON_LIBRARY.stretch,
-    label: '손목 이완',
-    cue: '손목 관절부터 부드럽게 푼다',
-  },
-  {
-    keys: ['벽푸시업', '푸시업', '트라이셉딥', '오버헤드프레스', '이두컬', '팔교차', '팔돌리기', '어깨돌리기', '어깨', '어깨으쓱', '팔벌려위로뻗기'],
-    pose: VISUAL_ICON_LIBRARY.strength,
-    label: '상체 근력',
-    cue: '어깨는 내리고 가슴을 편안히 세워요',
-  },
-  {
-    keys: ['고양이-소', '고양이', '가슴열기', '가슴스트레칭', '목스트레칭', '목좌우', '턱당기기', '옆구리', '허리돌리기', '가슴열기스트레칭', '옆으로누워책', '실꿰기', '네발자세흉곽', '반무릎흉곽', '앉아서흉곽', '상체비틀기', '흉추신전', '흉곽회전', '고관절스트레칭', '골반원', '골반원그리기', '어깨스트레칭', '팔교차'],
-    pose: VISUAL_ICON_LIBRARY.stretch,
-    label: '자세 정렬',
-    cue: '목-등-엉덩이 라인을 길게 펴주세요',
-  },
-  {
-    keys: ['아기자세', '차일드포즈', '나비자세', '무릎안기', '다리교차비틀기', '허리비틀기', '비둘기', '아기자세마무리', '전신스트레칭', '전신스트레칭마무리', '하체스트레칭마무리', '전신쿨다운', '명상호흡마무리', '시체자세명상', '아기자세'],
-    pose: VISUAL_ICON_LIBRARY.breathing,
-    label: '회복 스트레칭',
-    cue: '긴장을 풀고 호흡으로 마무리해요',
-  },
-  {
-    keys: ['벽천사'],
-    pose: VISUAL_ICON_LIBRARY.stretch,
-    label: '등/흉곽 열기',
-    cue: '등을 벽에 눕혀 천천히 길게 밀어요',
-  },
-  {
-    keys: ['시체', '사바사나'],
-    pose: VISUAL_ICON_LIBRARY.breathing,
-    label: '시체 이완',
-    cue: '눈을 감고 30초 이상 천천히 호흡해요',
-  },
+  { keys: ['브릿지 + 케겔', '싱글 레그 브릿지', '힙 쓰러스트', '브릿지'], pose: 'bridge', label: '브릿지', cue: '발로 밀고 엉덩이를 천천히 올려요' },
+  { keys: ['데드 벅', '누워서 행진', '발뒤꿈치 슬라이드'], pose: 'deadbug', label: '누워서 코어', cue: '허리가 뜨지 않게 천천히 교대해요' },
+  { keys: ['골반 기울이기', '배꼽 살짝', '누워서 배 수축'], pose: 'pelvicTilt', label: '골반 기울이기', cue: '숨을 내쉬며 허리를 바닥에 가깝게' },
+  { keys: ['케겔', '골반저근', '호흡 연결 케겔', '빠른 케겔'], pose: 'pelvicBreath', label: '골반저근', cue: '내쉬며 조이고 들이쉬며 부드럽게 풀어요' },
+  { keys: ['나비 자세'], pose: 'butterfly', label: '골반 이완', cue: '발바닥을 모으고 무릎을 편하게 내려요' },
+  { keys: ['복식 호흡', '횡격막', '늑간 호흡', '깊은 호흡', '명상', '시체 자세'], pose: 'breathing', label: '호흡', cue: '갈비뼈와 배가 편하게 오가게 해요' },
+  { keys: ['고양이-소', '고양이'], pose: 'catCow', label: '고양이-소', cue: '등을 둥글게 말고 천천히 펴요' },
+  { keys: ['버드독'], pose: 'birdDog', label: '버드독', cue: '팔과 반대쪽 다리를 길게 뻗어요' },
+  { keys: ['베어 크롤'], pose: 'bearHold', label: '베어 홀드', cue: '무릎을 살짝 띄우고 등은 평평하게' },
+  { keys: ['마운틴 클라이머'], pose: 'mountain', label: '마운틴 클라이머', cue: '플랭크에서 무릎을 천천히 당겨요' },
+  { keys: ['플랭크 탭'], pose: 'plankTap', label: '플랭크 탭', cue: '골반 흔들림 없이 어깨를 번갈아 터치' },
+  { keys: ['사이드 플랭크'], pose: 'sidePlank', label: '사이드 플랭크', cue: '무릎을 대도 좋고 골반을 들어요' },
+  { keys: ['플랭크'], pose: 'plank', label: '플랭크', cue: '어깨부터 엉덩이까지 일직선 유지' },
+  { keys: ['슈퍼맨', 'I-Y-T'], pose: 'superman', label: '등 강화', cue: '팔다리를 조금만 들고 목은 길게' },
+  { keys: ['클램쉘', '사이드 레그'], pose: 'sideLeg', label: '옆으로 다리', cue: '골반은 고정하고 위쪽 다리만 움직여요' },
+  { keys: ['벽 푸시업'], pose: 'wallPushup', label: '벽 푸시업', cue: '몸을 일직선으로 두고 벽을 밀어요' },
+  { keys: ['푸시업'], pose: 'pushup', label: '푸시업', cue: '무릎을 대도 좋고 몸통은 단단하게' },
+  { keys: ['트라이셉 딥'], pose: 'chairDip', label: '의자 딥', cue: '어깨를 낮추고 팔꿈치를 뒤로 접어요' },
+  { keys: ['스쿼트', '와이드 스쿼트'], pose: 'squat', label: '스쿼트', cue: '의자에 앉듯이 엉덩이를 뒤로 보내요' },
+  { keys: ['런지', '고관절 스트레칭'], pose: 'lunge', label: '런지', cue: '앞무릎은 발끝 방향, 상체는 길게' },
+  { keys: ['까치발', '종아리'], pose: 'calf', label: '종아리', cue: '벽을 잡고 발뒤꿈치를 천천히 올려요' },
+  { keys: ['점핑잭', '제자리 걷기', '제자리 행진', '워밍업', '전신 기지개'], pose: 'warmup', label: '가벼운 워밍업', cue: '팔을 크게 쓰고 가볍게 움직여요' },
+  { keys: ['오버헤드 프레스'], pose: 'overheadPress', label: '물병 프레스', cue: '갈비뼈가 들리지 않게 머리 위로 밀어요' },
+  { keys: ['이두 컬'], pose: 'bicepCurl', label: '물병 컬', cue: '팔꿈치를 옆구리에 두고 천천히 굽혀요' },
+  { keys: ['벽 천사'], pose: 'wallAngel', label: '벽 천사', cue: '등을 벽에 기대고 팔을 위아래로' },
+  { keys: ['턱 당기기', '목 좌우', '목 스트레칭'], pose: 'neck', label: '목 이완', cue: '턱을 살짝 당기고 목을 길게 늘려요' },
+  { keys: ['어깨 돌리기', '어깨 으쓱', '팔 돌리기', '어깨 스트레칭', '어깨 & 목'], pose: 'shoulder', label: '어깨 이완', cue: '어깨를 귀에서 멀리, 천천히 돌려요' },
+  { keys: ['가슴 열기', '가슴 스트레칭', '팔 교차'], pose: 'chestOpen', label: '가슴 열기', cue: '가슴을 부드럽게 열고 어깨 힘을 빼요' },
+  { keys: ['골반 원'], pose: 'sideBend', label: '골반 원', cue: '상체는 편하게 두고 골반으로 원을 그려요' },
+  { keys: ['옆구리', '팔 벌려', '허리 돌리기'], pose: 'sideBend', label: '옆구리', cue: '한쪽 팔을 길게 뻗고 옆으로 기울여요' },
+  { keys: ['허벅지 뒤쪽'], pose: 'hamstring', label: '햄스트링', cue: '무릎을 잠그지 말고 허벅지 뒤를 늘려요' },
+  { keys: ['허벅지 안쪽', '나비 자세'], pose: 'butterfly', label: '골반 이완', cue: '발바닥을 모으고 무릎을 편하게 내려요' },
+  { keys: ['무릎 안기'], pose: 'kneeHug', label: '무릎 안기', cue: '무릎을 가슴 쪽으로 편하게 안아요' },
+  { keys: ['다리 교차 비틀기', '허리 비틀기'], pose: 'supineTwist', label: '누워서 비틀기', cue: '무릎은 옆으로, 어깨는 바닥에 편하게' },
+  { keys: ['아기 자세', '차일드 포즈', '쿨다운', '스트레칭 마무리', '전신 스트레칭'], pose: 'childPose', label: '편안한 스트레칭', cue: '엉덩이를 뒤로 보내고 몸을 길게 이완해요' },
+  { keys: ['비둘기'], pose: 'pigeon', label: '비둘기 자세', cue: '골반을 정면으로 두고 엉덩이를 이완해요' },
+  { keys: ['옆으로 누워 책'], pose: 'bookOpen', label: '책 펼치기', cue: '위쪽 팔을 천천히 뒤로 열어요' },
+  { keys: ['실 꿰기', '네발 자세 흉곽'], pose: 'threadNeedle', label: '흉곽 회전', cue: '한 팔을 겨드랑이 밑으로 통과시켜요' },
+  { keys: ['반무릎 흉곽', '앉아서 흉곽', '상체 비틀기', '흉곽 회전'], pose: 'rotation', label: '상체 회전', cue: '골반은 고정하고 가슴만 천천히 돌려요' },
+  { keys: ['흉추 신전'], pose: 'thoracicExtension', label: '흉추 신전', cue: '등 위쪽을 수건 위에서 부드럽게 열어요' },
+  { keys: ['손목 돌리기'], pose: 'wrist', label: '손목 이완', cue: '손목을 작게 천천히 돌려요' },
 ];
 
-const DEFAULT_VISUAL = { pose: VISUAL_ICON_LIBRARY.stretch, label: '천천히 움직이기', cue: '통증 없는 범위에서 부드럽게 진행해요' };
+const DEFAULT_VISUAL = { pose: 'warmup', label: '천천히 움직이기', cue: '통증 없는 범위에서 부드럽게 진행해요' };
+
+function getExerciseImagePath(pose) {
+  const slug = EXERCISE_IMAGE_BY_POSE[pose] || DEFAULT_EXERCISE_IMAGE_SLUG;
+  return `${EXERCISE_IMAGE_ROOT}/${slug}.png`;
+}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({
@@ -850,8 +1268,7 @@ function escapeHtml(value) {
 function getExerciseVisualSpec(name) {
   const normalize = (value) => String(value)
     .replace(/\s+/g, '')
-    .replace(/[()&+]/g, '')
-    .replace(/-/g, '')
+    .replace(/[()]/g, '')
     .toLowerCase();
 
   const compactName = normalize(name);
@@ -863,7 +1280,7 @@ function getExerciseVisualSpec(name) {
       return rule;
     }
   }
-  return { ...DEFAULT_VISUAL };
+  return DEFAULT_VISUAL;
 }
 
 function svgHead(x, y, s = 1) {
@@ -898,20 +1315,6 @@ function joint(x, y, r = 4.8) {
 }
 
 function drawPose(pose) {
-  if (typeof pose === 'string' && (pose.startsWith('https://') || pose.startsWith('data:image/svg+xml'))) {
-    return `
-      <g>
-        <rect x="18" y="24" width="244" height="212" rx="18" fill="var(--surface2)" opacity="0.38"/>
-        <image
-          x="31"
-          y="34"
-          width="218"
-          height="184"
-          href="${pose}"
-          preserveAspectRatio="xMidYMid meet"
-        />
-      </g>`;
-  }
   const wide = 'fill="none" stroke="var(--text)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"';
   switch (pose) {
     case 'breathing':
@@ -1331,12 +1734,30 @@ function renderExerciseVisual(name, mode = 'hero', isMoving = false) {
     ${line2 ? `<text x="140" y="265" text-anchor="middle" fill="var(--text-secondary)" font-size="12" font-weight="700">${line2}</text>` : ''}
   `;
   const paused = mode === 'hero' && !isMoving ? ' paused' : '';
-  const svg = exerciseSvg(safeName, labelText, drawPose(spec.pose));
+  const poseMarkup = drawPose(spec.pose);
+
+  if (EXERCISE_IMAGE_ENABLED) {
+    const imagePath = getExerciseImagePath(spec.pose);
+    const wrapperClass = mode === 'thumb' ? 'ex-thumb' : `ex-img-wrap${paused}`;
+    return `
+      <div class="${wrapperClass}">
+        <img class="exercise-visual" src="${imagePath}" alt="${safeName} 동작 이미지" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <div class="exercise-svg-fallback" style="display:none;">${exerciseSvg(safeName, labelText, poseMarkup)}</div>
+      </div>
+    `;
+  }
+
+  const svg = exerciseSvg(safeName, labelText, poseMarkup);
 
   if (mode === 'thumb') {
     return `<div class="ex-thumb">${svg}</div>`;
   }
   return `<div class="ex-img-wrap${paused}">${svg}</div>`;
+}
+
+function renderCourseVisual(course) {
+  const firstMove = course?.exercises?.[0]?.name || '복합 운동';
+  return `<div class="course-card-icon">${renderExerciseVisual(firstMove, 'thumb')}</div>`;
 }
 
 function exerciseSvg(safeName, labelText, poseMarkup) {
@@ -1371,6 +1792,300 @@ function getCurrentWeekDay() {
 }
 
 // =============================================
+// Storage layer (localStorage + URL fallback)
+// =============================================
+const Storage = {
+  HISTORY_KEY: 'rudy.exercise.history.v1',
+  RESUME_KEY: 'rudy.exercise.resume.v1',
+  SETTINGS_KEY: 'rudy.exercise.settings.v1',
+  CONDITION_KEY: 'rudy.exercise.condition.v1',
+
+  _read(key, fallback) {
+    try {
+      if (typeof localStorage === 'undefined') return fallback;
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  _write(key, value) {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+    catch (e) { /* quota exceeded or private mode — ignore */ }
+  },
+
+  getHistory() { return this._read(this.HISTORY_KEY, []); },
+  addHistoryEntry(entry) {
+    const list = this.getHistory();
+    list.push(entry);
+    // Cap to last 90 days
+    const cutoff = Date.now() - 90 * 24 * 3600 * 1000;
+    const trimmed = list.filter(e => (e.ts || 0) > cutoff);
+    this._write(this.HISTORY_KEY, trimmed);
+  },
+
+  saveResume(state) {
+    this._write(this.RESUME_KEY, { ...state, savedAt: Date.now() });
+  },
+  getResume() {
+    const r = this._read(this.RESUME_KEY, null);
+    if (!r) return null;
+    const age = Date.now() - (r.savedAt || 0);
+    if (age > 30 * 60 * 1000) { this.clearResume(); return null; }
+    return r;
+  },
+  clearResume() {
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.removeItem(this.RESUME_KEY);
+    } catch (e) {}
+  },
+
+  getSettings() {
+    return this._read(this.SETTINGS_KEY, { sound: 'vibrate' });
+  },
+  saveSettings(s) { this._write(this.SETTINGS_KEY, s); },
+
+  getTodayCondition() {
+    const c = this._read(this.CONDITION_KEY, null);
+    if (!c) return null;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (c.date !== todayStr) { return null; }
+    return c.value;
+  },
+  saveTodayCondition(value) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    this._write(this.CONDITION_KEY, { date: todayStr, value });
+  },
+};
+
+// =============================================
+// Streak & weekly completion from history
+// =============================================
+function _dateStr(d) { return d.toISOString().slice(0, 10); }
+
+function isCompletedToday() {
+  const urlDone = new URLSearchParams(window.location.search).get('today_done');
+  if (urlDone === '1') return true;
+  const today = _dateStr(new Date());
+  return Storage.getHistory().some(e => e.date === today && e.mode !== 'course');
+}
+
+function computeStreak() {
+  const urlStreak = parseInt(new URLSearchParams(window.location.search).get('streak'), 10);
+  if (!isNaN(urlStreak) && urlStreak >= 0) return urlStreak;
+
+  const history = Storage.getHistory();
+  const dates = new Set(
+    history.filter(e => e.mode !== 'course').map(e => e.date)
+  );
+  let streak = 0;
+  let cursor = new Date();
+  // If weekend, back up to Friday first
+  while (cursor.getDay() === 0 || cursor.getDay() === 6) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  // Allow today being incomplete: if not done today, start from yesterday
+  if (!dates.has(_dateStr(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  for (let i = 0; i < 30; i++) {
+    // Skip weekends
+    while (cursor.getDay() === 0 || cursor.getDay() === 6) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    if (dates.has(_dateStr(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function getThisWeekCompletedDays() {
+  // Authoritative source: URL param from bot backend, falls back to local history
+  const urlDays = new URLSearchParams(window.location.search).get('weekly_days');
+  const thisWeek = new Set();
+  if (urlDays) {
+    urlDays.split(',').forEach(d => {
+      const n = parseInt(d, 10);
+      if (!isNaN(n) && n >= 1 && n <= 5) thisWeek.add(n);
+    });
+  }
+
+  const history = Storage.getHistory();
+  const today = new Date();
+  const monday = new Date(today);
+  const dow = today.getDay() === 0 ? 7 : today.getDay();
+  monday.setDate(today.getDate() - (dow - 1));
+  const mondayStr = _dateStr(monday);
+
+  history.forEach(e => {
+    if (!e.date || e.mode === 'course') return;
+    if (e.date >= mondayStr) {
+      const d = new Date(e.date + 'T00:00:00');
+      const dayIdx = d.getDay() === 0 ? 7 : d.getDay();
+      if (dayIdx <= 5) thisWeek.add(dayIdx);
+    }
+  });
+  return thisWeek;
+}
+
+// =============================================
+// WakeLock (keep screen on during workout)
+// =============================================
+const WakeLock = {
+  sentinel: null,
+  async acquire() {
+    try {
+      if ('wakeLock' in navigator && !this.sentinel) {
+        this.sentinel = await navigator.wakeLock.request('screen');
+        this.sentinel.addEventListener('release', () => { this.sentinel = null; });
+      }
+    } catch (e) { /* unsupported or denied */ }
+  },
+  async release() {
+    try { if (this.sentinel) await this.sentinel.release(); }
+    catch (e) {}
+    this.sentinel = null;
+  },
+};
+
+// Reacquire on visibility change (e.g. after tab switch)
+try {
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && timerRunning) {
+        WakeLock.acquire();
+      }
+    });
+  }
+} catch (e) { /* non-browser env */ }
+
+// =============================================
+// Audio / voice / vibration
+// =============================================
+const Audio = {
+  _ctx: null,
+  _ensureCtx() {
+    if (!this._ctx && typeof AudioContext !== 'undefined') {
+      try { this._ctx = new AudioContext(); } catch (e) { this._ctx = null; }
+    }
+    return this._ctx;
+  },
+  _beep(freq = 880, duration = 120) {
+    const ctx = this._ensureCtx();
+    if (!ctx) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration / 1000);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration / 1000 + 0.02);
+    } catch (e) {}
+  },
+  _speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ko-KR';
+      u.rate = 1.1;
+      u.volume = 0.9;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  },
+  _vibrate(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  },
+  mode() { return Storage.getSettings().sound || 'vibrate'; },
+  setMode(mode) { Storage.saveSettings({ sound: mode }); },
+  countdown(n) {
+    const m = this.mode();
+    if (m === 'silent') return;
+    if (m === 'voice') {
+      this._speak(String(n));
+    } else if (m === 'beep') {
+      this._beep(660, 90);
+    }
+    // vibrate is subtle so always fires as bonus unless silent
+    if (m === 'vibrate' || m === 'beep') this._vibrate(40);
+  },
+  exerciseDone() {
+    const m = this.mode();
+    if (m === 'silent') return;
+    this._vibrate([200, 100, 200]);
+    if (m === 'voice') this._speak('잘했어요!');
+    else if (m === 'beep') { this._beep(880, 140); setTimeout(() => this._beep(1100, 160), 160); }
+  },
+  sessionComplete() {
+    const m = this.mode();
+    if (m === 'silent') return;
+    this._vibrate([100, 60, 100, 60, 300]);
+    if (m === 'voice') this._speak('운동 완료! 수고했어요');
+    else if (m === 'beep') { this._beep(880, 140); setTimeout(() => this._beep(1100, 140), 150); setTimeout(() => this._beep(1320, 220), 320); }
+  },
+};
+
+// =============================================
+// Condition-based program adjustment
+// =============================================
+function adjustProgramForCondition(src, condition) {
+  if (!src || !condition || condition === 'normal') {
+    return { ...src, exercises: [...(src.exercises || [])] };
+  }
+  const exercises = (src.exercises || []).map(e => ({ ...e }));
+  if (condition === 'tired' && exercises.length >= 4) {
+    // Keep first (warmup), every other middle exercise, and last (cooldown)
+    const first = exercises[0];
+    const last = exercises[exercises.length - 1];
+    const middle = exercises.slice(1, -1).filter((_, i) => i % 2 === 0);
+    const reduced = [first, ...middle, last];
+    reduced.forEach(e => {
+      if (e.duration_seconds > 45) e.duration_seconds = Math.round(e.duration_seconds * 0.75);
+      if (e.sets && e.sets > 1) e.sets = Math.max(1, e.sets - 1);
+    });
+    return {
+      ...src,
+      exercises: reduced,
+      duration_minutes: Math.max(5, Math.round(src.duration_minutes * 0.6)),
+      _conditionAdjusted: 'tired',
+    };
+  }
+  if (condition === 'strong') {
+    exercises.forEach(e => {
+      if (e.duration_seconds) e.duration_seconds = Math.round(e.duration_seconds * 1.2);
+    });
+    return {
+      ...src,
+      exercises,
+      duration_minutes: Math.round(src.duration_minutes * 1.15),
+      _conditionAdjusted: 'strong',
+    };
+  }
+  return { ...src, exercises };
+}
+
+function conditionBadgeHtml(cond) {
+  if (!cond || cond === 'normal') return '';
+  const map = {
+    tired: { emoji: '😴', label: '가볍게' },
+    strong: { emoji: '💪', label: '도전' },
+  };
+  const v = map[cond];
+  if (!v) return '';
+  return `<span class="preview-pill" style="background:rgba(88,86,214,0.15);color:#a5a3ff;">${v.emoji} ${v.label}</span>`;
+}
+
+// =============================================
 // App State
 // =============================================
 let currentExerciseIndex = 0;
@@ -1384,6 +2099,12 @@ let isPreview = false;
 let elapsedInterval = null;
 let isCourseMode = false;
 let dailyProgram = null;
+let pendingSelection = null; // {type: 'daily'|'course', courseId?}
+let currentCondition = null;
+let repsDone = 0; // current exercise reps counter
+// Date.now()-based timer state
+let timerEndsAt = 0; // epoch ms when timer ends
+let timerPausedRemaining = 0; // seconds remaining when paused
 
 const WEEK_THEMES = {
   1: '기초 회복',
@@ -1442,6 +2163,55 @@ function init() {
   applyTheme();
   loadDailyProgram();
   renderCourses();
+  maybeShowResume();
+}
+
+function maybeShowResume() {
+  const resume = Storage.getResume();
+  if (!resume) return;
+  const overlay = document.getElementById('resumeOverlay');
+  const desc = document.getElementById('resumeDesc');
+  if (!overlay || !desc) return;
+  const savedMin = Math.max(1, Math.round((Date.now() - resume.savedAt) / 60000));
+  const doneCount = (resume.completedExercises || []).length;
+  const total = (resume.program?.exercises || []).length;
+  desc.innerHTML = `<strong>${resume.program?.title || '운동'}</strong><br>${doneCount}/${total}개 완료 · ${savedMin}분 전 중단`;
+  overlay.classList.add('show');
+}
+
+function applyResume() {
+  const resume = Storage.getResume();
+  if (!resume) { discardResume(); return; }
+  program = resume.program;
+  isCourseMode = !!resume.isCourseMode;
+  isPreview = false;
+  currentCondition = resume.condition || null;
+  currentExerciseIndex = resume.currentExerciseIndex || 0;
+  completedExercises = resume.completedExercises || [];
+  startTime = resume.startTime || Date.now();
+  timerSeconds = 0;
+  timerRunning = false;
+  document.getElementById('resumeOverlay').classList.remove('show');
+  if (elapsedInterval) clearInterval(elapsedInterval);
+  elapsedInterval = setInterval(updateElapsed, 1000);
+  renderWorkout();
+}
+
+function discardResume() {
+  Storage.clearResume();
+  document.getElementById('resumeOverlay').classList.remove('show');
+}
+
+function persistResume() {
+  if (!program || !startTime) return;
+  Storage.saveResume({
+    program,
+    isCourseMode,
+    condition: currentCondition,
+    currentExerciseIndex,
+    completedExercises,
+    startTime,
+  });
 }
 
 // =============================================
@@ -1452,20 +2222,64 @@ function renderCourses() {
   const el = document.getElementById('screenCourses');
   const dp = dailyProgram;
   const weekTheme = WEEK_THEMES[dp.week] || '';
+  const streak = computeStreak();
+  const weekDone = getThisWeekCompletedDays();
+  const todayDone = isCompletedToday();
+  const todayIdx = (() => {
+    const d = new Date();
+    return d.getDay() === 0 ? 7 : d.getDay();
+  })();
+
+  const dayLabels = ['월', '화', '수', '목', '금'];
+  const weekDotsHtml = dayLabels.map((label, i) => {
+    const dayNum = i + 1;
+    const classes = ['week-dot'];
+    if (weekDone.has(dayNum)) classes.push('done');
+    if (dayNum === todayIdx) classes.push('today');
+    return `<div class="${classes.join(' ')}">${weekDone.has(dayNum) ? '✓' : label}</div>`;
+  }).join('');
+
+  const soundMode = Storage.getSettings().sound || 'vibrate';
+  const soundIcon = { silent: '🔕', vibrate: '📳', beep: '🔔', voice: '🗣️' }[soundMode] || '📳';
+  const soundLabel = { silent: '무음', vibrate: '진동', beep: '알림음', voice: '음성' }[soundMode] || '진동';
 
   let html = `
     <div class="courses-header">
-      <h1>오늘의 운동</h1>
-      <p>원하는 코스를 골라보세요</p>
+      <div>
+        <h1>오늘의 운동</h1>
+        <p>원하는 코스를 골라보세요</p>
+      </div>
+      <div class="home-top-actions">
+        <button class="sound-toggle" onclick="cycleSoundMode()" aria-label="사운드 설정">
+          <span>${soundIcon}</span><span>${soundLabel}</span>
+        </button>
+      </div>
     </div>
 
-    <div class="today-card" onclick="selectDailyProgram()">
-      <div class="today-card-label">${isPreview ? '🔮 미리보기' : '⭐ 오늘의 추천'} · ${dp.week}주차 ${weekTheme}</div>
-      <h2>${dp.title}</h2>
-      <p>${dp.description}</p>
-      <div class="today-card-meta">
-        <span>⏱ ${dp.duration_minutes}분</span>
-        <span>🔥 ${dp.exercises.length}개 동작</span>
+    <div class="home-stats-header">
+      <div class="home-stats-streak">
+        <div class="home-stats-streak-num">🔥 ${streak}</div>
+        <div class="home-stats-streak-label">${streak > 0 ? '일 연속' : '오늘 시작!'}</div>
+      </div>
+      <div class="home-stats-week">
+        <div class="home-stats-week-title">이번 주 · ${weekDone.size}/5일</div>
+        <div class="home-stats-week-dots">${weekDotsHtml}</div>
+      </div>
+    </div>
+
+    <div class="today-card${todayDone ? ' done' : ''}" onclick="selectDailyProgram()">
+      ${todayDone ? '<div class="today-done-badge">✓ 오늘 완료</div>' : ''}
+      <div class="today-card-visual">
+        ${renderExerciseVisual(dp.exercises?.[0]?.name || '복합 운동', 'thumb')}
+      </div>
+      <div class="today-card-content">
+        <div class="today-card-label">${isPreview ? '🔮 미리보기' : '⭐ 오늘의 추천'} · ${dp.week}주차 ${weekTheme}</div>
+        <h2>${dp.title}</h2>
+        <p>${dp.description}</p>
+        <div class="today-card-meta">
+          <span>⏱ ${dp.duration_minutes}분</span>
+          <span>🔥 ${dp.exercises.length}개 동작</span>
+        </div>
       </div>
     </div>
   `;
@@ -1489,7 +2303,7 @@ function renderCourses() {
 
       html += `
         <div class="course-card" onclick="selectCourse('${course.id}')">
-          <div class="course-card-icon">${course.icon}</div>
+          ${renderCourseVisual(course)}
           <h3>${course.title}</h3>
           <p>${course.description}</p>
           <div class="course-card-meta">
@@ -1506,18 +2320,68 @@ function renderCourses() {
 }
 
 function selectDailyProgram() {
-  isCourseMode = false;
-  program = { ...dailyProgram };
-  renderOverview();
+  pendingSelection = { type: 'daily' };
+  proceedAfterCondition();
 }
 
 function selectCourse(courseId) {
-  const course = COURSES.find(c => c.id === courseId);
-  if (!course) return;
-  isCourseMode = true;
-  program = { ...course, week: 0, day: 0 };
-  isPreview = false;
+  pendingSelection = { type: 'course', courseId };
+  proceedAfterCondition();
+}
+
+function proceedAfterCondition() {
+  const cond = Storage.getTodayCondition();
+  if (cond) {
+    currentCondition = cond;
+    applyPendingSelection();
+  } else {
+    document.getElementById('conditionOverlay').classList.add('show');
+  }
+}
+
+function selectCondition(value) {
+  Storage.saveTodayCondition(value);
+  currentCondition = value;
+  document.getElementById('conditionOverlay').classList.remove('show');
+  applyPendingSelection();
+}
+
+function applyPendingSelection() {
+  const sel = pendingSelection;
+  pendingSelection = null;
+  if (!sel) return;
+  if (sel.type === 'daily') {
+    isCourseMode = false;
+    const base = { ...dailyProgram };
+    program = adjustProgramForCondition(base, currentCondition);
+    program.week = dailyProgram.week;
+    program.day = dailyProgram.day;
+  } else if (sel.type === 'course') {
+    const course = COURSES.find(c => c.id === sel.courseId);
+    if (!course) return;
+    isCourseMode = true;
+    const base = { ...course, week: 0, day: 0 };
+    program = adjustProgramForCondition(base, currentCondition);
+    program.id = course.id;
+    program.title = course.title;
+    program.icon = course.icon;
+    isPreview = false;
+  }
   renderOverview();
+}
+
+function cycleSoundMode() {
+  const order = ['silent', 'vibrate', 'beep', 'voice'];
+  const cur = Storage.getSettings().sound || 'vibrate';
+  const next = order[(order.indexOf(cur) + 1) % order.length];
+  Audio.setMode(next);
+  // Re-render current visible screen
+  const active = document.querySelector('.screen.active');
+  if (active?.id === 'screenCourses') renderCourses();
+  // Give feedback on current mode
+  if (next === 'voice') Audio._speak('음성 안내');
+  else if (next === 'beep') Audio._beep(880, 100);
+  else if (next === 'vibrate') Audio._vibrate(80);
 }
 
 function getFallbackProgram(week, day) {
@@ -1611,11 +2475,13 @@ function startWorkout() {
   completedExercises = [];
   timerSeconds = 0;
   timerRunning = false;
+  repsDone = 0;
 
   // Start elapsed timer
   if (elapsedInterval) clearInterval(elapsedInterval);
   elapsedInterval = setInterval(updateElapsed, 1000);
 
+  persistResume();
   renderWorkout();
 }
 
@@ -1629,7 +2495,10 @@ function jumpToExercise(index) {
   currentExerciseIndex = index;
   timerSeconds = 0;
   timerRunning = false;
-  clearInterval(timerInterval);
+  repsDone = 0;
+  if (timerInterval) clearInterval(timerInterval);
+  WakeLock.release();
+  persistResume();
   renderWorkout();
 }
 
@@ -1682,10 +2551,30 @@ function renderWorkout() {
     ? `${ex.sets > 1 ? ex.sets + '세트 × ' : ''}${ex.reps}회`
     : '시간 유지';
 
+  const condBadge = conditionBadgeHtml(currentCondition);
+
+  // Reps counter UI (only if ex has reps defined)
+  let repsCounterHtml = '';
+  if (ex.reps) {
+    const targetReps = (ex.sets && ex.sets > 1) ? ex.sets * ex.reps : ex.reps;
+    repsCounterHtml = `
+      <div class="reps-counter-wrap">
+        <div class="reps-counter-display">
+          <span class="reps-done" id="repsDoneDisplay">${repsDone}</span>
+          <span class="reps-total"> / ${targetReps}</span>
+        </div>
+        <button class="reps-counter-btn" onclick="incrementReps(${targetReps})">＋ 1회</button>
+      </div>
+    `;
+  }
+
   el.innerHTML = `
     <div class="workout-topbar">
       <button class="btn-back" onclick="goBack()">‹</button>
-      <span class="workout-progress-text">${currentExerciseIndex + 1} / ${total}</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="workout-progress-text">${currentExerciseIndex + 1} / ${total}</span>
+        ${condBadge}
+      </div>
       <span class="workout-elapsed" id="elapsedDisplay">${formatTime(elapsed)}</span>
     </div>
 
@@ -1694,13 +2583,13 @@ function renderWorkout() {
     <div class="exercise-hero">
       ${renderExerciseVisual(ex.name, 'hero', timerRunning)}
       <h2 class="exercise-hero-name">${ex.name}</h2>
-      <p class="exercise-hero-desc">${ex.description}</p>
       <div class="exercise-tags">
         ${tags.map(t => `<span class="exercise-tag">${t}</span>`).join('')}
       </div>
     </div>
 
-    <div class="timer-ring-container ${timerRunning ? 'running' : ''}" id="timerContainer">
+    <div class="timer-ring-container ${timerRunning ? 'running' : ''}" id="timerContainer"
+         onclick="toggleTimerTap()" title="탭하면 일시정지/재개">
       <svg class="timer-ring-svg" viewBox="0 0 220 220">
         <circle class="timer-ring-bg" cx="110" cy="110" r="100"/>
         <circle class="timer-ring-progress" id="timerRing" cx="110" cy="110" r="100"
@@ -1711,16 +2600,65 @@ function renderWorkout() {
         <div class="timer-time" id="timerDisplay">${formatTime(displaySec)}</div>
         <div class="timer-sub">${timerLabel}</div>
       </div>
+      <span class="tap-hint">탭: 일시정지/재개</span>
     </div>
+
+    <div class="exercise-desc-sticky">
+      <span class="desc-label">동작 설명</span>
+      ${ex.description}
+    </div>
+
+    ${repsCounterHtml}
 
     <div class="workout-actions">${actionsHtml}</div>
   `;
 }
 
+function incrementReps(target) {
+  repsDone = Math.min(target, repsDone + 1);
+  const display = document.getElementById('repsDoneDisplay');
+  if (display) {
+    display.textContent = repsDone;
+    display.style.transition = 'transform 0.12s';
+    display.style.transform = 'scale(1.3)';
+    setTimeout(() => { display.style.transform = 'scale(1)'; }, 120);
+  }
+  Audio._vibrate(25);
+  if (repsDone >= target) {
+    Audio.exerciseDone();
+    setTimeout(() => completeExercise(), 300);
+  }
+}
+
+// Tap-to-pause on timer ring (with double-tap protection via debounce)
+let _lastTap = 0;
+function toggleTimerTap() {
+  const now = Date.now();
+  if (now - _lastTap < 250) return; // debounce
+  _lastTap = now;
+  const ring = document.getElementById('timerContainer');
+  if (ring) {
+    ring.classList.add('tapped');
+    setTimeout(() => ring.classList.remove('tapped'), 250);
+  }
+  if (timerRunning) {
+    pauseTimer();
+  } else if (timerSeconds > 0) {
+    resumeTimer();
+  } else {
+    const ex = program.exercises[currentExerciseIndex];
+    startTimer(ex.duration_seconds);
+  }
+}
+
 function goBack() {
-  clearInterval(timerInterval);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
   timerRunning = false;
   timerSeconds = 0;
+  timerPausedRemaining = 0;
+  WakeLock.release();
+  persistResume();
   renderOverviewWithProgress();
 }
 
@@ -1794,45 +2732,74 @@ function renderOverviewWithProgress() {
 }
 
 // =============================================
-// Timer
+// Timer (Date.now()-based, background-throttle-safe)
 // =============================================
 function startTimer(seconds) {
   timerSeconds = seconds;
+  timerEndsAt = Date.now() + seconds * 1000;
+  timerPausedRemaining = 0;
   timerRunning = true;
+  WakeLock.acquire();
   renderWorkout();
-  timerInterval = setInterval(timerTick, 1000);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(timerTick, 250);
+  _announcedSeconds = null;
 }
 
 function pauseTimer() {
   clearInterval(timerInterval);
+  timerInterval = null;
+  const now = Date.now();
+  timerPausedRemaining = Math.max(0, Math.ceil((timerEndsAt - now) / 1000));
+  timerSeconds = timerPausedRemaining;
   timerRunning = false;
+  WakeLock.release();
   renderWorkout();
 }
 
 function resumeTimer() {
+  if (timerPausedRemaining <= 0) {
+    const ex = program.exercises[currentExerciseIndex];
+    timerPausedRemaining = ex.duration_seconds;
+  }
+  timerEndsAt = Date.now() + timerPausedRemaining * 1000;
+  timerSeconds = timerPausedRemaining;
+  timerPausedRemaining = 0;
   timerRunning = true;
+  WakeLock.acquire();
   renderWorkout();
-  timerInterval = setInterval(timerTick, 1000);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(timerTick, 250);
+  _announcedSeconds = null;
 }
 
+let _announcedSeconds = null;
 function timerTick() {
-  timerSeconds--;
-  if (timerSeconds <= 0) {
+  const remaining = Math.max(0, Math.ceil((timerEndsAt - Date.now()) / 1000));
+  timerSeconds = remaining;
+
+  if (remaining <= 3 && remaining > 0 && _announcedSeconds !== remaining) {
+    _announcedSeconds = remaining;
+    Audio.countdown(remaining);
+  }
+
+  if (remaining <= 0) {
     clearInterval(timerInterval);
+    timerInterval = null;
     timerRunning = false;
     timerSeconds = 0;
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    Audio.exerciseDone();
     completeExercise();
     return;
   }
-  // Update display without full re-render
+
   const display = document.getElementById('timerDisplay');
   const ring = document.getElementById('timerRing');
-  if (display) display.textContent = formatTime(timerSeconds);
+  if (display) display.textContent = formatTime(remaining);
   if (ring) {
     const ex = program.exercises[currentExerciseIndex];
     const circumference = 2 * Math.PI * 100;
-    const progress = 1 - timerSeconds / ex.duration_seconds;
+    const progress = 1 - remaining / ex.duration_seconds;
     ring.setAttribute('stroke-dashoffset', circumference * (1 - progress));
   }
 }
@@ -1855,13 +2822,18 @@ function formatTime(s) {
 // Exercise Flow
 // =============================================
 function completeExercise() {
-  clearInterval(timerInterval);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
   timerRunning = false;
   timerSeconds = 0;
+  timerPausedRemaining = 0;
+  WakeLock.release();
 
   if (!completedExercises.includes(currentExerciseIndex)) {
     completedExercises.push(currentExerciseIndex);
   }
+
+  persistResume();
 
   const allDone = completedExercises.length === program.exercises.length;
   if (allDone) {
@@ -1884,6 +2856,8 @@ function moveToNext() {
     const idx = (currentExerciseIndex + 1 + i) % total;
     if (!completedExercises.includes(idx)) {
       currentExerciseIndex = idx;
+      repsDone = 0;
+      persistResume();
       renderWorkout();
       return;
     }
@@ -1916,12 +2890,17 @@ function showRest(seconds, callback) {
     }
   }
 
-  let remaining = seconds;
+  const restEndsAt = Date.now() + seconds * 1000;
+  let lastAnnounced = null;
   restInterval = setInterval(() => {
-    remaining--;
+    const remaining = Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000));
     countdown.textContent = remaining;
+    if (remaining <= 3 && remaining > 0 && lastAnnounced !== remaining) {
+      lastAnnounced = remaining;
+      Audio.countdown(remaining);
+    }
     if (remaining <= 0) hideRest();
-  }, 1000);
+  }, 250);
 }
 
 function hideRest() {
@@ -1937,9 +2916,54 @@ function skipRest() { hideRest(); }
 // =============================================
 function showCompleteScreen() {
   showScreen('screenComplete');
+  WakeLock.release();
+  Storage.clearResume();
+  Audio.sessionComplete();
+
   const el = document.getElementById('screenComplete');
   const elapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
   const minutes = Math.max(1, Math.round(elapsed / 60));
+
+  // Save to local history (de-duped by date + mode + id)
+  try {
+    const todayStr = _dateStr(new Date());
+    const entryKey = isCourseMode
+      ? `course:${program?.id || program?.title}`
+      : `daily:${program?.week || 0}:${program?.day || 0}`;
+    const history = Storage.getHistory();
+    const alreadyLogged = history.some(e => e.date === todayStr && e.key === entryKey);
+    if (!alreadyLogged) {
+      Storage.addHistoryEntry({
+        ts: Date.now(),
+        date: todayStr,
+        key: entryKey,
+        mode: isCourseMode ? 'course' : 'daily',
+        title: program?.title,
+        completed: completedExercises.length,
+        total: program?.exercises?.length || 0,
+        duration: elapsed,
+        condition: currentCondition,
+      });
+    }
+  } catch (e) { /* ignore storage errors */ }
+
+  const streak = computeStreak();
+  const weekDone = getThisWeekCompletedDays();
+  // If today wasn't in history-based count before this save, include it visually
+  const todayIdx = (() => {
+    const d = new Date();
+    return d.getDay() === 0 ? 7 : d.getDay();
+  })();
+  if (!isCourseMode && todayIdx <= 5) weekDone.add(todayIdx);
+
+  const dayLabels = ['월', '화', '수', '목', '금'];
+  const weekDotsHtml = dayLabels.map((label, i) => {
+    const dayNum = i + 1;
+    const classes = ['week-dot'];
+    if (weekDone.has(dayNum)) classes.push('done');
+    if (dayNum === todayIdx) classes.push('today');
+    return `<div class="${classes.join(' ')}">${weekDone.has(dayNum) ? '✓' : label}</div>`;
+  }).join('');
 
   el.innerHTML = `
     <div class="complete-icon">✓</div>
@@ -1955,6 +2979,18 @@ function showCompleteScreen() {
         <div class="complete-stat-value">${minutes}</div>
         <div class="complete-stat-label">소요 시간(분)</div>
       </div>
+      <div class="complete-stat">
+        <div class="complete-stat-value">🔥 ${streak}</div>
+        <div class="complete-stat-label">연속 일수</div>
+      </div>
+      <div class="complete-stat">
+        <div class="complete-stat-value">${weekDone.size}/5</div>
+        <div class="complete-stat-label">이번 주</div>
+      </div>
+    </div>
+
+    <div style="width:100%;max-width:300px;margin-bottom:28px;">
+      <div class="home-stats-week-dots">${weekDotsHtml}</div>
     </div>
 
     <button class="btn-main btn-complete" onclick="sendResult()">결과 저장하기</button>
@@ -1980,6 +3016,12 @@ function sendResult() {
   if (isCourseMode && program.id) {
     result.course_id = program.id;
     result.course_title = program.title;
+  }
+  if (currentCondition) {
+    result.condition = currentCondition;
+  }
+  if (program._conditionAdjusted) {
+    result.adjusted = program._conditionAdjusted;
   }
 
   const tg = window.Telegram?.WebApp;
